@@ -1,0 +1,37 @@
+<head>
+    <%- include('../partials/head') %>
+    <title>Meu Perfil - Educação Acessível</title>
+</head>
+<body>
+    <%- include('../partials/navbar') %>
+    
+    <main class="container mt-5 pt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-body p-5">
+                        <h2 class="text-center mb-4">Meu Perfil</h2>
+                        
+                        <div class="mb-3">
+                            <strong>Email:</strong> <%= user.email %>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Cidade:</strong> <%= user.cidade || 'Não informado' %>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Estado:</strong> <%= user.estado || 'Não informado' %>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Etapa de Interesse:</strong> <%= user.etapa_preferida || 'Não informado' %>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <a href="/" class="btn btn-primary">Voltar à Página Inicial</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <%- include('../partials/footer') %>

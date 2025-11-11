@@ -1,13 +1,19 @@
 const Usuario = require('../models/Usuario');
-const bcrypt = require('bcrypt');
 
 const authController = {
     loginPage: (req, res) => {
-        res.render('pages/login', { erro: req.query.erro });
+        res.render('pages/login', { 
+            user: req.session.user,
+            erro: req.query.erro 
+        });
     },
 
     cadastroPage: (req, res) => {
-        res.render('pages/cadastro', { erro: req.query.erro });
+        res.render('pages/cadastro', { 
+            user: req.session.user,
+            erro: req.query.erro 
+
+        });
     },
 
     cadastrar: async (req, res) => {
@@ -16,15 +22,21 @@ const authController = {
             
             // Validações básicas
             if (senha !== confirmar_senha) {
-                return res.redirect('/cadastro?erro=Senhas não coincidem');
+                return res.redirect('/auth/cadastro?erro=Senhas não coincidem');
             }
 
             await Usuario.criar({ email, senha, cidade, estado, etapa_preferida });
-            res.redirect('/login?sucesso=Conta criada com sucesso');
+            res.redirect('/auth/login?sucesso=Conta criada com sucesso');
             
         } catch (error) {
-            console.error(error);
-            res.redirect('/cadastro?erro=Erro ao criar conta');
+            console.error('Erro no cadastro:', error);
+            let mensagemErro = 'Erro ao criar conta';
+            
+            if (error.code === 'ER_DUP_ENTRY') {
+                mensagemErro = 'Este email já está cadastrado';
+            }
+            
+            res.redirect('/auth/cadastro?erro=' + mensagemErro);
         }
     },
 
@@ -34,12 +46,12 @@ const authController = {
             const usuario = await Usuario.buscarPorEmail(email);
             
             if (!usuario) {
-                return res.redirect('/login?erro=Email ou senha incorretos');
+                return res.redirect('/auth/login?erro=Email ou senha incorretos');
             }
 
-            const senhaValida = await bcrypt.compare(senha, usuario.senha);
+            const senhaValida = await Usuario.validarSenha(senha, usuario.senha);
             if (!senhaValida) {
-                return res.redirect('/login?erro=Email ou senha incorretos');
+                return res.redirect('/auth/login?erro=Email ou senha incorretos');
             }
 
             // Criar sessão
@@ -54,9 +66,18 @@ const authController = {
             res.redirect('/');
             
         } catch (error) {
-            console.error(error);
-            res.redirect('/login?erro=Erro no servidor');
+            console.error('Erro no login:', error);
+            res.redirect('/auth/login?erro=Erro no servidor');
         }
+    },
+
+    logout: (req, res) => {
+        req.session.destroy((err) => {
+            if (err) {
+                console.error('Erro ao fazer logout:', err);
+            }
+            res.redirect('/');
+        });
     }
 };
 

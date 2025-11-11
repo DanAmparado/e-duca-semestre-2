@@ -7,11 +7,16 @@ class Usuario {
         
         return new Promise((resolve, reject) => {
             const sql = 'INSERT INTO usuarios (email, senha, cidade, estado, etapa_preferida) VALUES (?, ?, ?, ?, ?)';
-            db.query(sql, [usuario.email, hashedPassword, usuario.cidade, usuario.estado, usuario.etapa_preferida], 
-                (err, result) => {
-                    if (err) reject(err);
-                    else resolve(result);
-                });
+            db.query(sql, [
+                usuario.email, 
+                hashedPassword, 
+                usuario.cidade, 
+                usuario.estado, 
+                usuario.etapa_preferida
+            ], (err, result) => {
+                if (err) reject(err);
+                else resolve(result);
+            });
         });
     }
 
@@ -23,6 +28,10 @@ class Usuario {
                 else resolve(results[0]);
             });
         });
+    }
+
+    static async validarSenha(senha, senhaHash) {
+        return await bcrypt.compare(senha, senhaHash);
     }
 }
 

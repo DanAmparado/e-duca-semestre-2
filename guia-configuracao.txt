@@ -1,0 +1,181 @@
+E-DUCA - GUIA DE CONFIGURAÇÃO LOCAL
+=====================================
+
+PRÉ-REQUISITOS
+---------------
+
+Software Necessário:
+- Node.js (versão 16 ou superior) - https://nodejs.org/
+- MySQL - https://dev.mysql.com/downloads/mysql/ ou XAMPP
+- Git - https://git-scm.com/
+- Editor de Código (VS Code recomendado) - https://code.visualstudio.com/
+
+Verificar Instalações:
+node --version    # Deve mostrar v16 ou superior
+npm --version     # Deve mostrar v8 ou superior  
+mysql --version   # Deve mostrar a versão do MySQL
+git --version     # Deve mostrar a versão do Git
+
+CONFIGURAÇÃO PASSO A PASSO
+---------------------------
+
+1. CLONAR O REPOSITÓRIO
+git clone https://github.com/DanAmparado/e-duca-semestre-2.git
+cd e-duca-semestre-2
+
+2. INSTALAR DEPENDÊNCIAS
+npm install
+
+3. CONFIGURAR BANCO DE DADOS MYSQL
+
+Opção A: Usando MySQL Command Line
+mysql -u root -p
+source database/educa.sql
+exit
+
+Opção B: Usando PHPMyAdmin (XAMPP)
+1. Iniciar Apache e MySQL no XAMPP
+2. Acessar http://localhost/phpmyadmin
+3. Criar novo banco: educa
+4. Importar arquivo: database/educa.sql
+
+Opção C: Usando MySQL Workbench
+1. Abrir MySQL Workbench
+2. Conectar ao servidor local
+3. Executar script: File → Open SQL Script → educa.sql
+4. Executar todo o script
+
+4. CONFIGURAR VARIÁVEIS DE AMBIENTE
+cp .env.example .env
+
+Editar o arquivo .env com:
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=sua_senha_mysql
+DB_NAME=educa
+SESSION_SECRET=seu_segredo_super_secreto_aqui
+PORT=3000
+
+5. EXECUTAR A APLICAÇÃO
+npm run dev
+# Ou: npm start
+
+6. VERIFICAR SE ESTÁ FUNCIONANDO
+Acesse: http://localhost:3000
+
+TESTES INICIAIS
+---------------
+
+Testar Conexão com Banco:
+Acesse: http://localhost:3000/test-db
+Resultado esperado: "Banco OK! Resultado: 2"
+
+Testar Autenticação:
+1. Acesse: http://localhost:3000/auth/cadastro
+2. Crie uma conta de teste
+3. Faça login: http://localhost:3000/auth/login
+4. Verifique o perfil: http://localhost:3000/perfil
+
+ESTRUTURA DO PROJETO
+--------------------
+
+e-duca-semestre-2/
+├── backend/           # Lógica do servidor
+│   ├── config/        # Configurações (banco, etc.)
+│   ├── controllers/   # Lógica das rotas
+│   ├── models/        # Modelos de dados
+│   ├── routes/        # Definição de rotas
+│   └── server.js      # Arquivo principal
+├── frontend/          # Interface do usuário
+│   ├── views/         # Templates EJS
+│   └── public/        # Arquivos estáticos
+├── database/          # Scripts do banco
+└── package.json       # Dependências e scripts
+
+PARA COMEÇAR A DESENVOLVER
+--------------------------
+
+Padrão para Novos CRUDs:
+1. Criar model: backend/models/Entidade.js
+2. Criar controller: backend/controllers/entidadeController.js  
+3. Criar routes: backend/routes/entidadeRoutes.js
+4. Registrar rotas no server.js
+5. Criar views: frontend/views/pages/entidade.ejs
+
+Scripts Disponíveis:
+npm start          # Inicia o servidor
+npm run dev        # Desenvolvimento com auto-reload
+
+SOLUÇÃO DE PROBLEMAS COMUNS
+---------------------------
+
+Erro: "Cannot connect to MySQL"
+- Verificar se MySQL está rodando
+- Linux: sudo service mysql start
+- Windows: net start mysql
+- Ou iniciar pelo XAMPP
+
+Erro: "Access denied for user"
+- Verificar usuário/senha no arquivo .env
+- No MySQL: ALTER USER 'root'@'localhost' IDENTIFIED BY 'nova_senha';
+
+Erro: "Database educa doesn't exist"
+- Executar o script database/educa.sql novamente
+
+Porta 3000 ocupada:
+- Mudar porta no arquivo .env: PORT=3001
+
+FLUXO DE TRABALHO EM EQUIPE
+---------------------------
+
+1. Antes de Começar:
+git pull origin main
+npm install
+
+2. Para Nova Funcionalidade:
+git checkout -b minha-feature
+# Desenvolver...
+git add .
+git commit -m "feat: descrição da feature"
+git push origin minha-feature
+# Criar Pull Request no GitHub
+
+3. Atualizar do Repositório:
+git checkout main
+git pull origin main
+git checkout minha-feature  
+git merge main
+
+SUPORTE
+-------
+
+Se Encontrarem Problemas:
+1. Verificar esta documentação
+2. Consultar issues no GitHub
+3. Contatar Daniel para suporte técnico
+
+Links Úteis:
+- Repositório: https://github.com/DanAmparado/e-duca-semestre-2
+- Reportar Bug: Criar Issue no GitHub
+- Sugerir Melhoria: Criar Issue no GitHub
+
+CHECKLIST DE CONFIGURAÇÃO
+-------------------------
+
+[ ] Node.js instalado
+[ ] MySQL instalado e rodando
+[ ] Repositório clonado
+[ ] Dependências instaladas (npm install)
+[ ] Banco criado (educa)
+[ ] Arquivo .env configurado
+[ ] Servidor rodando (npm start)
+[ ] Página inicial carrega
+[ ] Teste do banco funciona
+[ ] Cadastro e login funcionam
+
+BOA SORTE NO DESENVOLVIMENTO!
+
+Equipe E-DUCA - Democratizando o acesso à educação
+
+Documento atualizado em: Novembro 2025
+Manter atualizado conforme novas configurações forem necessárias

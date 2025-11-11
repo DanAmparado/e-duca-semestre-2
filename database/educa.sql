@@ -32,3 +32,8 @@ CREATE TABLE noticias (
     data_publicacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     data_atualizacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+-- Inserir dados de exemplo
+INSERT INTO recursos (titulo, descricao, link_externo, etapa) VALUES 
+('Khan Academy', 'Plataforma gratuita de ensino online', 'https://pt.khanacademy.org/', 'Basico,Fundamental,Medio'),
+('MEC Educação Básica', 'Recursos do Ministério da Educação', 'https://www.gov.br/mec/', 'Basico,Fundamental,Medio');

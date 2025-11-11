@@ -3,36 +3,46 @@
         <a class="navbar-brand" href="/">
             <img src="/images/logo-placeholder.svg" alt="Logo" height="40">
         </a>
-
+        
         <div class="collapse navbar-collapse" id="mainNav">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item active">
+                <li class="nav-item">
                     <a class="nav-link" href="/">Home</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/noticias">Notícias</a>
                 </li>
-                <!-- Educação dropdown será adicionado depois -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        Educação
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/educacao/basico">Básico</a></li>
+                        <li><a class="dropdown-item" href="/educacao/fundamental">Fundamental</a></li>
+                        <li><a class="dropdown-item" href="/educacao/medio">Médio</a></li>
+                        <li><a class="dropdown-item" href="/educacao/tecnico">Técnico</a></li>
+                        <li><a class="dropdown-item" href="/educacao/superior">Superior</a></li>
+                    </ul>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/sobre">Sobre Nós</a>
                 </li>
+                <% if (user) { %>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/perfil">Meu Perfil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/logout">Sair</a>
+                    </li>
+                <% } else { %>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/login">Entrar</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/cadastro">Cadastrar</a>
+                    </li>
+                <% } %>
             </ul>
-
-        
-        <% if (!user) { %>
-            <li class="nav-item">
-                <a class="nav-link" href="/auth/login">Entrar</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/auth/cadastro">Cadastrar</a>
-            </li>
-        <% } else { %>
-            <li class="nav-item">
-                <a class="nav-link" href="/perfil">Meu Perfil</a>
-            </li>
-        <% } %>
-        
-
         </div>
     </div>
 </nav>

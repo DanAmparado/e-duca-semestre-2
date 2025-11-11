@@ -1,0 +1,25 @@
+{
+  "name": "e-duca",
+  "version": "1.0.0",
+  "description": "Sistema de Democratização do Acesso à Educação",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "db:setup": "node database/setup.js"
+  },
+  "keywords": ["educação", "nodejs", "mysql"],
+  "author": "Daniel, César, Victor",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.0",
+    "mysql2": "^3.0.0",
+    "ejs": "^3.1.8",
+    "bcrypt": "^5.1.0",
+    "express-session": "^1.17.3",
+    "dotenv": "^16.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.0"
+  }
+}

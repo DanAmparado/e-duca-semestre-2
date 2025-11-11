@@ -3,7 +3,7 @@
         <a class="navbar-brand" href="/">
             <img src="/images/logo-placeholder.svg" alt="Logo" height="40">
         </a>
-        
+
         <div class="collapse navbar-collapse" id="mainNav">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item active">
@@ -17,6 +17,22 @@
                     <a class="nav-link" href="/sobre">Sobre Nós</a>
                 </li>
             </ul>
+
+        
+        <% if (!user) { %>
+            <li class="nav-item">
+                <a class="nav-link" href="/auth/login">Entrar</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/auth/cadastro">Cadastrar</a>
+            </li>
+        <% } else { %>
+            <li class="nav-item">
+                <a class="nav-link" href="/perfil">Meu Perfil</a>
+            </li>
+        <% } %>
+        
+
         </div>
     </div>
 </nav>

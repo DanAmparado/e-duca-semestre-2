@@ -11,8 +11,8 @@ const authController = {
     cadastroPage: (req, res) => {
         res.render('pages/cadastro', { 
             user: req.session.user,
-            erro: req.query.erro 
-
+            erro: req.query.erro,
+            sucesso: req.query.sucesso
         });
     },
 

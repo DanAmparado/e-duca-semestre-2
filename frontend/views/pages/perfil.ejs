@@ -1,37 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
     <%- include('../partials/head') %>
-    <title>Meu Perfil - Educação Acessível</title>
+    <title>Meu Perfil - E-DUCA</title>
 </head>
 <body>
     <%- include('../partials/navbar') %>
     
-    <main class="container mt-5 pt-5">
+    <div class="container mt-5 pt-5">
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card shadow">
                     <div class="card-body p-5">
                         <h2 class="text-center mb-4">Meu Perfil</h2>
                         
-                        <div class="mb-3">
-                            <strong>Email:</strong> <%= user.email %>
-                        </div>
-                        <div class="mb-3">
-                            <strong>Cidade:</strong> <%= user.cidade || 'Não informado' %>
-                        </div>
-                        <div class="mb-3">
-                            <strong>Estado:</strong> <%= user.estado || 'Não informado' %>
-                        </div>
-                        <div class="mb-3">
-                            <strong>Etapa de Interesse:</strong> <%= user.etapa_preferida || 'Não informado' %>
+                        <div class="mb-4">
+                            <h5>Informações da Conta</h5>
+                            <p><strong>Email:</strong> <%= user.email %></p>
+                            <% if (user.cidade) { %>
+                                <p><strong>Cidade:</strong> <%= user.cidade %></p>
+                            <% } %>
+                            <% if (user.estado) { %>
+                                <p><strong>Estado:</strong> <%= user.estado %></p>
+                            <% } %>
+                            <% if (user.etapa_preferida) { %>
+                                <p><strong>Etapa de Interesse:</strong> <%= user.etapa_preferida %></p>
+                            <% } %>
                         </div>
 
-                        <div class="text-center mt-4">
-                            <a href="/" class="btn btn-primary">Voltar à Página Inicial</a>
+                        <div class="d-grid gap-2">
+                            <a href="/" class="btn btn-primary">Voltar para Home</a>
+                            <a href="/auth/logout" class="btn btn-outline-danger">Sair</a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </main>
+    </div>
 
     <%- include('../partials/footer') %>
+</body>
+</html>

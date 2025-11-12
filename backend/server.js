@@ -3,6 +3,7 @@ const session = require('express-session');
 const path = require('path');
 const db = require('./config/database');
 
+
 const app = express();
 
 // Configurações
@@ -62,6 +63,10 @@ app.get('/educacao/profissional', (req, res) => {
 app.get('/educacao/superior', (req, res) => {
     res.redirect('/recursos/educacao/superior');
 });
+
+// Rota Recomendações
+const recomendacoesRoutes = require('./routes/recomendacoesRoutes');
+app.use('/recomendacoes', recomendacoesRoutes);
 
 app.listen(3000, () => {
     console.log('Servidor rodando: http://localhost:3000');

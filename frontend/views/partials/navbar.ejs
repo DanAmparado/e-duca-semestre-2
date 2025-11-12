@@ -1,38 +1,61 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
     <div class="container">
         <a class="navbar-brand" href="/">
-            <img src="/images/logo-placeholder.svg" alt="Logo" height="40">
+            <img src="/images/logo-placeholder.svg" alt="Logo Educação Acessível" height="40">
         </a>
         
+        <!-- Botão para mobile -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Alternar navegação">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
         <div class="collapse navbar-collapse" id="mainNav">
             <ul class="navbar-nav ms-auto">
+                <!-- Home -->
                 <li class="nav-item">
                     <a class="nav-link" href="/">Home</a>
                 </li>
+
+                <!-- Recursos (link direto) -->
                 <li class="nav-item">
-                    <a class="nav-link" href="/noticias">Notícias</a>
+                    <a class="nav-link" href="/recursos">Recursos</a>
                 </li>
+
+                <!-- Educação Dropdown -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Educação
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="/educacao/basico">Básico</a></li>
-                        <li><a class="dropdown-item" href="/educacao/fundamental">Fundamental</a></li>
-                        <li><a class="dropdown-item" href="/educacao/medio">Médio</a></li>
-                        <li><a class="dropdown-item" href="/educacao/tecnico">Técnico</a></li>
-                        <li><a class="dropdown-item" href="/educacao/superior">Superior</a></li>
+                        <li><a class="dropdown-item" href="/recursos/educacao/basica">Educação Básica</a></li>
+                        <li><a class="dropdown-item" href="/recursos/educacao/profissional">Educação Profissional</a></li>
+                        <li><a class="dropdown-item" href="/recursos/educacao/superior">Educação Superior</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/recursos">Todos os Recursos</a></li>
                     </ul>
                 </li>
+
+                <!-- Notícias -->
+                <li class="nav-item">
+                    <a class="nav-link" href="/noticias">Notícias</a>
+                </li>
+
+                <!-- Sobre -->
                 <li class="nav-item">
                     <a class="nav-link" href="/sobre">Sobre Nós</a>
                 </li>
+
+                <!-- Autenticação -->
                 <% if (user) { %>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/perfil">Meu Perfil</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/auth/logout">Sair</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle"></i> <%= user.email.split('@')[0] %>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/perfil">Meu Perfil</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/auth/logout">Sair</a></li>
+                        </ul>
                     </li>
                 <% } else { %>
                     <li class="nav-item">
@@ -43,6 +66,14 @@
                     </li>
                 <% } %>
             </ul>
+
+            <!-- Busca Rápida (Opcional - pode adicionar depois) -->
+            <!--
+            <form class="d-flex ms-2" action="/recursos/buscar" method="GET">
+                <input class="form-control me-2" type="search" name="q" placeholder="Buscar recursos..." aria-label="Buscar">
+                <button class="btn btn-outline-light" type="submit">Buscar</button>
+            </form>
+            -->
         </div>
     </div>
 </nav>

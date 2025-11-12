@@ -22,15 +22,14 @@ const recursosController = {
         });
     },
 
-    // Listar recursos por etapa educacional
+    // Método listarPorEtapa
     listarPorEtapa: (req, res) => {
         const etapa = req.params.etapa;
         
-        // ⭐ MAPEAMENTO OTIMIZADO - URLs amigáveis para valores do banco
         const etapasMap = {
             // Educação Básica
             'basica': 'Basico',
-            'fundamental': 'Fundamental',
+            'fundamental': 'Fundamental', 
             'medio': 'Medio',
             
             // Educação Profissional
@@ -40,10 +39,23 @@ const recursosController = {
             'superior': 'Superior'
         };
 
-        const etapaBanco = etapasMap[etapa] || etapa;
+        const etapaBanco = etapasMap[etapa];
+        
+        // 🚨 VERIFICAÇÃO CRÍTICA
+        if (!etapaBanco) {
+            return res.status(404).render('pages/erro', {
+                erro: 'Etapa educacional não encontrada',
+                user: req.session.user
+            });
+        }
         
         const sql = 'SELECT * FROM recursos WHERE ativo = true AND etapa LIKE ? ORDER BY titulo';
         const parametros = [`%${etapaBanco}%`];
+        
+        // 🚨 DEBUG: log temporario
+        console.log('DEBUG - Etapa URL:', etapa);
+        console.log('DEBUG - Etapa Banco:', etapaBanco);
+        console.log('DEBUG - SQL:', sql, parametros);
         
         db.query(sql, parametros, (err, results) => {
             if (err) {
@@ -54,10 +66,10 @@ const recursosController = {
                 });
             }
 
-            // Títulos amigáveis para cada página
+            // Títulos atualizados
             const titulos = {
                 'basica': 'Educação Básica',
-                'fundamental': 'Educação Fundamental', 
+                'fundamental': 'Ensino Fundamental', 
                 'medio': 'Ensino Médio',
                 'profissional': 'Educação Profissional',
                 'superior': 'Educação Superior'
@@ -67,11 +79,10 @@ const recursosController = {
                 user: req.session.user,
                 recursos: results,
                 etapa: etapa,
-                titulo: titulos[etapa] || `Recursos - ${etapaBanco}`
+                titulo: titulos[etapa] || `Recursos Educacionais`
             });
         });
     },
-
     // Buscar recursos por termo
     buscarRecursos: (req, res) => {
         const termo = req.query.q;

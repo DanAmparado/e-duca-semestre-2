@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <%- include('../../partials/head') %>
+    <title><%= recurso.titulo %> - E-DUCA</title>
+</head>
+<body>
+    <%- include('../../partials/navbar') %>
+    
+    <div class="container mt-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Início</a></li>
+                <li class="breadcrumb-item"><a href="/recursos">Recursos</a></li>
+                <li class="breadcrumb-item active" aria-current="page"><%= recurso.titulo %></li>
+            </ol>
+        </nav>
+
+        <div class="card">
+            <div class="card-body">
+                <h1 class="card-title"><%= recurso.titulo %></h1>
+                <p class="card-text"><%= recurso.descricao %></p>
+                
+                <div class="mb-3">
+                    <strong>Etapa(s):</strong> 
+                    <span class="badge bg-primary"><%= recurso.etapa %></span>
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Link externo:</strong> 
+                    <a href="<%= recurso.link_externo %>" target="_blank" class="text-break">
+                        <%= recurso.link_externo %>
+                    </a>
+                </div>
+
+                <div class="mt-4">
+                    <a href="<%= recurso.link_externo %>" target="_blank" class="btn btn-primary btn-lg">
+                        🔗 Acessar Recurso Externo
+                    </a>
+                    <a href="/recursos" class="btn btn-outline-secondary">← Voltar para Recursos</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../../partials/footer') %>
+</body>
+</html>

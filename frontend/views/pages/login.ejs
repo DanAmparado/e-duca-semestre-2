@@ -18,6 +18,10 @@
                             <div class="alert alert-danger"><%= erro %></div>
                         <% } %>
                         
+                        <% if (typeof sucesso !== 'undefined') { %>  <!-- ADICIONAR ISSO -->
+                            <div class="alert alert-success"><%= sucesso %></div>
+                        <% } %>
+
                         <form action="/auth/login" method="POST">
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>

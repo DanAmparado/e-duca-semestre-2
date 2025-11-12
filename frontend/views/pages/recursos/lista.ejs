@@ -1,0 +1,71 @@
+<head>
+    <%- include('../../partials/head') %>
+    <title><%= titulo %> - Educação Acessível</title>
+</head>
+<body>
+    <%- include('../../partials/navbar') %>
+    
+    <main class="container mt-5 pt-5">
+        <div class="row">
+            <div class="col-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/">Home</a></li>
+                        <% if (etapa) { %>
+                            <li class="breadcrumb-item"><a href="/recursos">Recursos</a></li>
+                            <li class="breadcrumb-item active"><%= titulo %></li>
+                        <% } else { %>
+                            <li class="breadcrumb-item active"><%= titulo %></li>
+                        <% } %>
+                    </ol>
+                </nav>
+
+                <h1 class="mb-4"><%= titulo %></h1>
+                
+                <% if (recursos.length === 0) { %>
+                    <div class="alert alert-info">
+                        <h4 class="alert-heading">Nenhum recurso encontrado</h4>
+                        <p class="mb-0">Não encontramos recursos educacionais para esta categoria no momento.</p>
+                    </div>
+                <% } else { %>
+                    <p class="text-muted mb-4">Encontramos <strong><%= recursos.length %></strong> recursos educacionais.</p>
+                    
+                    <div class="row g-4">
+                        <% recursos.forEach(recurso => { %>
+                            <div class="col-12 col-md-6 col-lg-4">
+                                <div class="card h-100 shadow-sm">
+                                    <div class="card-body">
+                                        <h5 class="card-title"><%= recurso.titulo %></h5>
+                                        <p class="card-text text-muted small">
+                                            <%= recurso.descricao.length > 120 ? 
+                                                recurso.descricao.substring(0, 120) + '...' : 
+                                                recurso.descricao %>
+                                        </p>
+                                        <div class="mb-2">
+                                            <small class="badge bg-primary">
+                                                <%= recurso.etapa %>
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer bg-transparent">
+                                        <a href="<%= recurso.link_externo %>" 
+                                           target="_blank" 
+                                           class="btn btn-primary btn-sm">
+                                            Acessar Recurso
+                                        </a>
+                                        <a href="/recursos/<%= recurso.id %>" 
+                                           class="btn btn-outline-secondary btn-sm">
+                                            Detalhes
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </main>
+
+    <%- include('../../partials/footer') %>
+</body>

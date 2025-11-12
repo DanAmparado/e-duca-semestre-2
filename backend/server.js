@@ -46,6 +46,23 @@ app.get('/perfil', (req, res) => {
     res.render('pages/perfil', { user: req.session.user });
 });
 
+// Rotas de recursos educacionais
+const recursosRoutes = require('./routes/recursosRoutes');
+app.use('/recursos', recursosRoutes);
+
+// Rotas de educação (alternativas para URLs mais curtas)
+app.get('/educacao/basica', (req, res) => {
+    res.redirect('/recursos/educacao/basica');
+});
+
+app.get('/educacao/profissional', (req, res) => {
+    res.redirect('/recursos/educacao/profissional');
+});
+
+app.get('/educacao/superior', (req, res) => {
+    res.redirect('/recursos/educacao/superior');
+});
+
 app.listen(3000, () => {
     console.log('Servidor rodando: http://localhost:3000');
 });

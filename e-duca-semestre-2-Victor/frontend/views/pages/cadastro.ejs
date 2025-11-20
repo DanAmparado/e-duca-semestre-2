@@ -1,0 +1,68 @@
+<head>
+    <%- include('../partials/head') %>
+    <title>Cadastro - Educação Acessível</title>
+</head>
+<body>
+    <%- include('../partials/navbar') %>
+    
+    <main class="container mt-5 pt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-body p-5">
+                        <h2 class="text-center mb-4">Criar Conta</h2>
+                        
+                        <% if (typeof erro !== 'undefined') { %>
+                            <div class="alert alert-danger"><%= erro %></div>
+                        <% } %>
+                        
+                        <% if (typeof sucesso !== 'undefined') { %>
+                            <div class="alert alert-success"><%= sucesso %></div>
+                        <% } %>
+                        
+                        <form action="/auth/cadastro" method="POST">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="senha" class="form-label">Senha</label>
+                                <input type="password" class="form-control" id="senha" name="senha" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="confirmar_senha" class="form-label">Confirmar Senha</label>
+                                <input type="password" class="form-control" id="confirmar_senha" name="confirmar_senha" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="cidade" class="form-label">Cidade (opcional)</label>
+                                <input type="text" class="form-control" id="cidade" name="cidade">
+                            </div>
+                            <div class="mb-3">
+                                <label for="estado" class="form-label">Estado (opcional)</label>
+                                <input type="text" class="form-control" id="estado" name="estado">
+                            </div>
+                            <div class="mb-3">
+                                <label for="etapa_preferida" class="form-label">Etapa de Interesse (opcional)</label>
+                                <select class="form-control" id="etapa_preferida" name="etapa_preferida">
+                                    <option value="">Selecione...</option>
+                                    <option value="Basico">Básico</option>
+                                    <option value="Fundamental">Fundamental</option>
+                                    <option value="Medio">Médio</option>
+                                    <option value="Tecnico">Técnico</option>
+                                    <option value="Superior">Superior</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Criar Conta</button>
+                        </form>
+                        
+                        <div class="text-center mt-3">
+                            <a href="/auth/login">Já tem conta? Faça login</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+</body>

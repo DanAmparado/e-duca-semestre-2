@@ -1,0 +1,66 @@
+/* ===== VARIABLES ===== */
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #3498db;
+}
+
+/* ===== BASE STYLES ===== */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding-top: 76px; /* Para navbar fixa */
+}
+
+/* ===== NAVIGATION ===== */
+.navbar {
+    border-bottom: 3px solid var(--secondary-color);
+}
+
+/* ===== HERO SECTION ===== */
+.hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px;
+    margin-top: 2rem;
+}
+
+/* ===== CARDS ===== */
+.card {
+    transition: transform 0.3s ease;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+/* ============================ */
+/* ===== ADMIN PANEL STYLES === */
+/* ============================ */
+
+/* Fundo levemente diferente para páginas que tenham a classe .admin-body */
+body.admin-mode {
+    background-color: #f4f6f9;
+}
+
+/* Cabeçalho das tabelas do admin usando sua cor primária */
+.table-admin thead {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Wrapper para o conteúdo do admin não ficar colado nas bordas */
+.admin-container {
+    padding: 2rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+}
+
+/* Botões de Ação (Editar/Excluir) menores */
+.btn-sm-custom {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}

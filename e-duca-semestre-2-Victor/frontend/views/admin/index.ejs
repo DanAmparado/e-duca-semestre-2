@@ -1,0 +1,65 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<main class="container mt-5 pt-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="text-primary fw-bold">
+                <i class="bi bi-speedometer2"></i> Painel Administrativo
+            </h1>
+            <p class="lead text-muted">
+                Bem-vindo. Selecione uma categoria para gerenciar.
+            </p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0 hover-effect">
+                <div class="card-body text-center p-5">
+                    <div class="mb-3 text-primary">
+                        <i class="bi bi-collection-play display-1"></i>
+                    </div>
+                    <h3 class="card-title fw-bold">Recursos Educacionais</h3>
+                    <p class="card-text text-muted mb-4">
+                        Adicione, edite ou remova vídeos, apostilas e links de aulas.
+                    </p>
+                    <a href="/admin/recursos" class="btn btn-primary btn-lg w-100">
+                        <i class="bi bi-gear-fill me-2"></i> Gerenciar Recursos
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0 hover-effect">
+                <div class="card-body text-center p-5">
+                    <div class="mb-3 text-success">
+                        <i class="bi bi-newspaper display-1"></i>
+                    </div>
+                    <h3 class="card-title fw-bold">Notícias e Avisos</h3>
+                    <p class="card-text text-muted mb-4">
+                        Publique atualizações e novidades para os usuários da plataforma.
+                    </p>
+                    <a href="/admin/noticias" class="btn btn-success btn-lg w-100">
+                        <i class="bi bi-pencil-square me-2"></i> Gerenciar Notícias
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<style>
+    .hover-effect {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .hover-effect:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+</style>
+
+<%- include('../partials/footer') %>

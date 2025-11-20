@@ -1,0 +1,47 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <img src="/img/logo.png" alt="E-Duca" height="40">
+        </a>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="/recursos">Recursos</a></li>
+                
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Educação</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/recursos/educacao/basica">Educação Básica</a></li>
+                        <li><a class="dropdown-item" href="/recursos/educacao/profissional">Educação Profissional</a></li>
+                        <li><a class="dropdown-item" href="/recursos/educacao/superior">Educação Superior</a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item"><a class="nav-link" href="/noticias">Notícias</a></li>
+                <li class="nav-item"><a class="nav-link" href="/sobre">Sobre Nós</a></li>
+
+                <% if (user) { %>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i> <%= user.email ? user.email.split('@')[0] : 'Usuário' %>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/recomendacoes">🎯 Para Você</a></li>
+                            <li><a class="dropdown-item" href="/perfil">Meu Perfil</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/auth/logout">Sair</a></li>
+                        </ul>
+                    </li>
+                <% } else { %>
+                    <li class="nav-item"><a class="nav-link" href="/auth/login">Entrar</a></li>
+                    <li class="nav-item"><a class="nav-link btn btn-outline-light ms-2" href="/auth/cadastro">Cadastrar</a></li>
+                <% } %>
+            </ul>
+        </div>
+    </div>
+</nav>

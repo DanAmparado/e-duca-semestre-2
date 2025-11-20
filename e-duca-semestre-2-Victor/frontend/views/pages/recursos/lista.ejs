@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <%- include('../../partials/head') %>
+    <title><%= titulo %> - E-DUCA</title>
+</head>
+<body>
+    <%- include('../../partials/navbar') %>
+    
+    <div class="container mt-4">
+        <h1><%= titulo %></h1>
+        
+        <% if (recursos.length === 0) { %>
+            <div class="alert alert-info">
+                Nenhum recurso encontrado para esta categoria.
+            </div>
+        <% } else { %>
+            <div class="row">
+                <% recursos.forEach(recurso => { %>
+                <div class="col-md-6 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title"><%= recurso.titulo %></h5>
+                            <p class="card-text"><%= recurso.descricao %></p>
+                            <p class="text-muted"><strong>Etapa:</strong> <%= recurso.etapa %></p>
+                            <a href="<%= recurso.link_externo %>" target="_blank" class="btn btn-primary">
+                                Acessar Recurso
+                            </a>
+                            <a href="/recursos/<%= recurso.id %>" class="btn btn-outline-secondary">
+                                Ver Detalhes
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+        <% } %>
+    </div>
+
+    <%- include('../../partials/footer') %>
+</body>
+</html>

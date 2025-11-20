@@ -1,9 +1,11 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
     <%- include('../../partials/head') %>
-    <title>Busca: <%= termo %> - Educação Acessível</title>
+    <title>Busca: <%= termo %> - E-DUCA</title>
 </head>
 <body>
-    <%- include('../../partials/navbar') %>
+    <%- include('../../partials/navbar', { user: user }) %> <!-- ✅ CORRIGIDO -->
     
     <main class="container mt-5 pt-5">
         <div class="row">
@@ -27,7 +29,7 @@
                         <p class="mb-0">Tente usar termos diferentes ou <a href="/recursos">explore todos os recursos</a>.</p>
                     </div>
                 <% } else { %>
-                    <p class="text-muted mb-4">Encontramos <strong><%= total %></strong> recursos.</p>
+                    <p class="text-muted mb-4">Encontramos <strong><%= recursos.length %></strong> <%= recursos.length === 1 ? 'recurso' : 'recursos' %>.</p> <!-- ✅ CORRIGIDO -->
                     
                     <div class="row g-4">
                         <% recursos.forEach(recurso => { %>
@@ -36,9 +38,9 @@
                                     <div class="card-body">
                                         <h5 class="card-title"><%= recurso.titulo %></h5>
                                         <p class="card-text text-muted small">
-                                            <%= recurso.descricao.length > 120 ? 
+                                            <%= recurso.descricao && recurso.descricao.length > 120 ? 
                                                 recurso.descricao.substring(0, 120) + '...' : 
-                                                recurso.descricao %>
+                                                (recurso.descricao || 'Descrição não disponível') %>
                                         </p>
                                         <div class="mb-2">
                                             <small class="badge bg-primary">
@@ -50,11 +52,11 @@
                                         <a href="<%= recurso.link_externo %>" 
                                            target="_blank" 
                                            class="btn btn-primary btn-sm">
-                                            Acessar Recurso
+                                            🌐 Acessar Recurso
                                         </a>
                                         <a href="/recursos/<%= recurso.id %>" 
                                            class="btn btn-outline-secondary btn-sm">
-                                            Detalhes
+                                            📋 Detalhes
                                         </a>
                                     </div>
                                 </div>
@@ -62,9 +64,15 @@
                         <% }); %>
                     </div>
                 <% } %>
+
+                <!-- ✅ ADICIONADO: Links de navegação -->
+                <div class="mt-4 text-center">
+                    <a href="/recursos" class="btn btn-outline-primary">← Voltar para Todos os Recursos</a>
+                </div>
             </div>
         </div>
     </main>
 
     <%- include('../../partials/footer') %>
 </body>
+</html>

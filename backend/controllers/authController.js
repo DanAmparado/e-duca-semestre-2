@@ -45,6 +45,12 @@ const authController = {
             const { email, senha } = req.body;
             const usuario = await Usuario.buscarPorEmail(email);
             
+            console.log('=== DEBUG AUTH CONTROLLER ===');
+            console.log('Usuario do banco:', usuario);
+            console.log('is_admin:', usuario?.is_admin);
+            console.log('nivel_acesso:', usuario?.nivel_acesso);
+            console.log('=============================');
+
             if (!usuario) {
                 return res.redirect('/auth/login?erro=Email ou senha incorretos');
             }
@@ -60,7 +66,9 @@ const authController = {
                 email: usuario.email,
                 cidade: usuario.cidade,
                 estado: usuario.estado,
-                etapa_preferida: usuario.etapa_preferida
+                etapa_preferida: usuario.etapa_preferida,
+                is_admin: usuario.is_admin || false,
+                nivel_acesso: usuario.nivel_acesso || 'editor'
             };
 
             res.redirect('/');

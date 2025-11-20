@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <%- include('../../partials/head') %>
+    <title>Criar Recurso - E-DUCA</title>
+</head>
+<body>
+    <div class="d-flex">
+        <%- include('../partials/admin-sidebar', { currentPage: 'recursos' }) %>
+        
+        <div class="flex-grow-1 p-4">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 text-gray-800">Criar Novo Recurso</h1>
+                <a href="/admin/recursos" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i> Voltar
+                </a>
+            </div>
+
+            <!-- Create Form -->
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Informações do Recurso</h6>
+                        </div>
+                        <div class="card-body">
+                            <% if (typeof erro !== 'undefined') { %>
+                                <div class="alert alert-danger"><%= erro %></div>
+                            <% } %>
+
+                            <form method="POST" action="/admin/recursos/criar">
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label for="titulo" class="form-label">Título do Recurso *</label>
+                                        <input type="text" class="form-control" id="titulo" name="titulo" 
+                                               value="<%= recurso.titulo || '' %>" required
+                                               placeholder="Ex: Khan Academy - Matemática Básica">
+                                        <div class="form-text">Título claro e descritivo do recurso.</div>
+                                    </div>
+
+                                    <div class="col-md-12 mb-3">
+                                        <label for="descricao" class="form-label">Descrição *</label>
+                                        <textarea class="form-control" id="descricao" name="descricao" 
+                                                  rows="4" required
+                                                  placeholder="Descreva o recurso educacional..."><%= recurso.descricao || '' %></textarea>
+                                        <div class="form-text">Forneça uma descrição detalhada sobre o recurso.</div>
+                                    </div>
+
+                                    <div class="col-md-12 mb-3">
+                                        <label for="link_externo" class="form-label">Link Externo *</label>
+                                        <input type="url" class="form-control" id="link_externo" name="link_externo" 
+                                               value="<%= recurso.link_externo || '' %>" required
+                                               placeholder="https://exemplo.com/recurso">
+                                        <div class="form-text">URL completa para acessar o recurso.</div>
+                                    </div>
+
+                                    <div class="col-md-12 mb-3">
+                                        <label for="etapa" class="form-label">Etapa Educacional *</label>
+                                        <select class="form-select" id="etapa" name="etapa" required>
+                                            <option value="">Selecione a etapa...</option>
+                                            <option value="Basico" <%= (recurso.etapa === 'Basico') ? 'selected' : '' %>>Educação Básica</option>
+                                            <option value="Fundamental" <%= (recurso.etapa === 'Fundamental') ? 'selected' : '' %>>Ensino Fundamental</option>
+                                            <option value="Medio" <%= (recurso.etapa === 'Medio') ? 'selected' : '' %>>Ensino Médio</option>
+                                            <option value="Tecnico" <%= (recurso.etapa === 'Tecnico') ? 'selected' : '' %>>Educação Profissional</option>
+                                            <option value="Superior" <%= (recurso.etapa === 'Superior') ? 'selected' : '' %>>Educação Superior</option>
+                                            <option value="Basico,Fundamental,Medio" <%= (recurso.etapa === 'Basico,Fundamental,Medio') ? 'selected' : '' %>>Básico, Fundamental e Médio</option>
+                                            <option value="Tecnico,Superior" <%= (recurso.etapa === 'Tecnico,Superior') ? 'selected' : '' %>>Profissional e Superior</option>
+                                        </select>
+                                        <div class="form-text">Selecione a(s) etapa(s) educacional(is) para este recurso.</div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="d-flex gap-2">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="bi bi-plus-circle me-1"></i> Criar Recurso
+                                            </button>
+                                            <a href="/admin/recursos" class="btn btn-outline-secondary">Cancelar</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Preview Card -->
+                    <div class="card shadow mt-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-info">Pré-visualização</h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="preview" class="text-muted">
+                                <p class="mb-2">O recurso aparecerá assim no site:</p>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 id="preview-titulo" class="card-title text-primary">Título do recurso</h5>
+                                        <p id="preview-descricao" class="card-text">Descrição do recurso educacional...</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small id="preview-etapa" class="text-muted">Etapa educacional</small>
+                                            <a href="#" id="preview-link" class="btn btn-sm btn-primary" target="_blank">Acessar Recurso</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Live Preview
+        function updatePreview() {
+            document.getElementById('preview-titulo').textContent = 
+                document.getElementById('titulo').value || 'Título do recurso';
+            
+            document.getElementById('preview-descricao').textContent = 
+                document.getElementById('descricao').value || 'Descrição do recurso educacional...';
+            
+            document.getElementById('preview-etapa').textContent = 
+                document.getElementById('etapa').value || 'Etapa educacional';
+            
+            const link = document.getElementById('link_externo').value;
+            if (link) {
+                document.getElementById('preview-link').href = link;
+                document.getElementById('preview-link').style.display = 'inline-block';
+            } else {
+                document.getElementById('preview-link').style.display = 'none';
+            }
+        }
+
+        // Add event listeners for live preview
+        document.getElementById('titulo').addEventListener('input', updatePreview);
+        document.getElementById('descricao').addEventListener('input', updatePreview);
+        document.getElementById('etapa').addEventListener('change', updatePreview);
+        document.getElementById('link_externo').addEventListener('input', updatePreview);
+
+        // Initial preview
+        updatePreview();
+    </script>
+
+    <%- include('../../partials/footer') %>
+</body>
+</html>

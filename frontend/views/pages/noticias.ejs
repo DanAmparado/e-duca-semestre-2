@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <%- include('../partials/head') %>
+    <title>Notícias - E-DUCA</title>
+    <style>
+        .construction-icon {
+            font-size: 5rem;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+    </style>
+</head>
+<body>
+    <%- include('../partials/navbar', { user: user }) %>
+
+    <!-- Página em Construção -->
+    <main class="container mt-5 pt-5">
+        <div class="row justify-content-center align-items-center min-vh-50">
+            <div class="col-md-8 col-lg-6 text-center">
+                <div class="card shadow-lg border-0">
+                    <div class="card-body py-5 px-4">
+                        <!-- Ícone Animado -->
+                        <div class="construction-icon text-warning mb-4">
+                            <i class="bi bi-tools"></i>
+                        </div>
+                        
+                        <!-- Título -->
+                        <h1 class="display-5 fw-bold text-primary mb-3">
+                            Em Construção
+                        </h1>
+                        
+                        <!-- Mensagem -->
+                        <p class="lead text-muted mb-4">
+                            Estamos trabalhando bastante para trazer as últimas notícias e atualizações 
+                            sobre educação diretamente para você!
+                        </p>
+                        
+                        <!-- Detalhes -->
+                        <div class="alert alert-info border-0 mb-4">
+                            <h5 class="alert-heading">🚀 Novidades em Breve!</h5>
+                            <p class="mb-0">
+                                Esta seção estará disponível na próxima versão do sistema. 
+                                Aqui você encontrará notícias educacionais, atualizações do projeto 
+                                e novidades sobre recursos educacionais.
+                            </p>
+                        </div>
+
+                        <!-- Progresso Simulado -->
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between mb-2">
+                                <small>Progresso do Desenvolvimento</small>
+                                <small>65%</small>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                     role="progressbar" 
+                                     style="width: 65%"
+                                     aria-valuenow="65" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botões de Ação -->
+                        <div class="d-flex flex-wrap justify-content-center gap-3 mt-4">
+                            <a href="/" class="btn btn-primary btn-lg">
+                                <i class="bi bi-house-fill"></i> Voltar para Home
+                            </a>
+                            <a href="/recursos" class="btn btn-outline-primary btn-lg">
+                                <i class="bi bi-journal-text"></i> Explorar Recursos
+                            </a>
+                            <a href="/sobre" class="btn btn-outline-secondary btn-lg">
+                                <i class="bi bi-info-circle"></i> Sobre o Projeto
+                            </a>
+                        </div>
+
+                        <!-- Contato -->
+                        <div class="mt-5 pt-3 border-top">
+                            <p class="text-muted small mb-2">
+                                Precisa de informações urgentes? 
+                            </p>
+                            <a href="/sobre" class="btn btn-sm btn-outline-dark">
+                                <i class="bi bi-envelope"></i> Entre em Contato
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+</body>
+</html>

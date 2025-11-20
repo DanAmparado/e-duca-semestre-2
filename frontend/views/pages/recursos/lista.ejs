@@ -5,36 +5,133 @@
     <title><%= titulo %> - E-DUCA</title>
 </head>
 <body>
-    <%- include('../../partials/navbar') %>
-    
+    <%- include('../../partials/navbar', { user: user }) %>
+
     <div class="container mt-4">
-        <h1><%= titulo %></h1>
-        
-        <% if (recursos.length === 0) { %>
-            <div class="alert alert-info">
-                Nenhum recurso encontrado para esta categoria.
-            </div>
-        <% } else { %>
-            <div class="row">
-                <% recursos.forEach(recurso => { %>
-                <div class="col-md-6 mb-3">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title"><%= recurso.titulo %></h5>
-                            <p class="card-text"><%= recurso.descricao %></p>
-                            <p class="text-muted"><strong>Etapa:</strong> <%= recurso.etapa %></p>
-                            <a href="<%= recurso.link_externo %>" target="_blank" class="btn btn-primary">
-                                Acessar Recurso
-                            </a>
-                            <a href="/recursos/<%= recurso.id %>" class="btn btn-outline-secondary">
-                                Ver Detalhes
-                            </a>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Início</a></li>
+                <li class="breadcrumb-item active">Recursos Educacionais</li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mb-4"><%= titulo %></h1>
+                
+                <!-- ✅ BARRA DE PESQUISA CORRIGIDA -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">🔍 Encontrar Recursos</h5>
+                        <form action="/recursos/busca" method="GET" class="row g-3 align-items-end">
+                            <div class="col-md-8">
+                                <label for="termoBusca" class="form-label">Buscar por palavra-chave:</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="termoBusca" 
+                                       name="q" 
+                                       placeholder="Ex: matemática, física, programação..."
+                                       required>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-search"></i> Buscar Recursos
+                                </button>
+                            </div>
+                        </form>
+                        <div class="mt-2">
+                            <small class="text-muted">
+                                Busque por título, descrição ou etapa educacional
+                            </small>
                         </div>
                     </div>
                 </div>
-                <% }) %>
+
+                <!-- Filtros Rápidos por Etapa -->
+                <div class="mb-4">
+                    <h5>📚 Explorar por Etapa Educacional</h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="/recursos/educacao/basica" class="btn btn-outline-primary btn-sm">
+                            Educação Básica
+                        </a>
+                        <a href="/recursos/educacao/fundamental" class="btn btn-outline-primary btn-sm">
+                            Ensino Fundamental
+                        </a>
+                        <a href="/recursos/educacao/medio" class="btn btn-outline-primary btn-sm">
+                            Ensino Médio
+                        </a>
+                        <a href="/recursos/educacao/profissional" class="btn btn-outline-primary btn-sm">
+                            Educação Profissional
+                        </a>
+                        <a href="/recursos/educacao/superior" class="btn btn-outline-primary btn-sm">
+                            Educação Superior
+                        </a>
+                        <a href="/recursos" class="btn btn-outline-secondary btn-sm">
+                            Ver Todos
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Lista de Recursos -->
+                <% if (recursos.length === 0) { %>
+                    <div class="alert alert-info">
+                        <h5>Nenhum recurso encontrado</h5>
+                        <p class="mb-0">Não há recursos disponíveis para os critérios atuais.</p>
+                    </div>
+                <% } else { %>
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <p class="text-muted">
+                                Mostrando <strong><%= recursos.length %></strong> 
+                                <%= recursos.length === 1 ? 'recurso' : 'recursos' %>
+                            </p>
+                        </div>
+                        
+                        <% recursos.forEach(recurso => { %>
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <%= recurso.titulo.length > 60 ? 
+                                            recurso.titulo.substring(0, 60) + '...' : 
+                                            recurso.titulo %>
+                                    </h5>
+                                    <p class="card-text text-muted small">
+                                        <%= recurso.descricao && recurso.descricao.length > 120 ? 
+                                            recurso.descricao.substring(0, 120) + '...' : 
+                                            (recurso.descricao || 'Descrição não disponível.') %>
+                                    </p>
+                                    <div class="mb-2">
+                                        <span class="badge bg-primary">
+                                            <%= recurso.etapa %>
+                                        </span>
+                                        <% if (recurso.disciplina) { %>
+                                        <span class="badge bg-secondary">
+                                            <%= recurso.disciplina %>
+                                        </span>
+                                        <% } %>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-transparent">
+                                    <div class="d-flex justify-content-between">
+                                        <a href="<%= recurso.link_externo %>" 
+                                           target="_blank" 
+                                           class="btn btn-primary btn-sm">
+                                            🌐 Acessar
+                                        </a>
+                                        <a href="/recursos/<%= recurso.id %>" 
+                                           class="btn btn-outline-secondary btn-sm">
+                                            📋 Detalhes
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <% }) %>
+                    </div>
+                <% } %>
             </div>
-        <% } %>
+        </div>
     </div>
 
     <%- include('../../partials/footer') %>

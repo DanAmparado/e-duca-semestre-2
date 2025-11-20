@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <%- include('../partials/head') %>
+    <title>Sobre Nós - E-DUCA</title>
+    <style>
+        .team-member {
+            transition: transform 0.3s ease;
+        }
+        .team-member:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body>
+    <%- include('../partials/navbar', { user: user }) %>
+
+    <!-- Conteúdo Principal -->
+    <main class="container mt-5 pt-5">
+        <article>
+            <header class="mb-5 text-center">
+                <h1 class="display-5 fw-bold mb-4">Sobre Nossa Iniciativa</h1>
+                <p class="lead text-muted">Democratizando o acesso à educação de qualidade para todos os brasileiros</p>
+            </header>
+
+            <div class="row g-4">
+                <!-- Nossa Missão -->
+                <div class="col-12">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body p-4">
+                            <h2 class="h3 mb-4 text-primary">🎯 Nossa Missão</h2>
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <p class="mb-3">
+                                        Na <strong>E-DUCA</strong>, nossa missão é democratizar o acesso à educação de qualidade para todos os brasileiros, independentemente de sua origem, idade ou condição social. Acreditamos que a educação é a ferramenta mais poderosa para transformar vidas e construir um futuro mais justo e inclusivo.
+                                    </p>
+                                    <p class="mb-3">
+                                        Buscamos oferecer conteúdos, recursos e informações confiáveis que auxiliem estudantes, educadores e comunidades a superarem barreiras e conquistarem seus objetivos educacionais. Com foco na inclusão, inovação e apoio contínuo, trabalhamos para fortalecer a formação técnica, básica e superior, contribuindo para o desenvolvimento pessoal e profissional de cada indivíduo.
+                                    </p>
+                                    <p class="mb-0">
+                                        Nos empenhamos em ser uma ponte entre as oportunidades educacionais e quem delas mais precisa, promovendo um ambiente de aprendizado acessível, colaborativo e inspirador.
+                                    </p>
+                                </div>
+                                <div class="col-lg-4 text-center">
+                                    <div class="bg-light rounded p-4">
+                                        <i class="bi bi-bullseye display-4 text-primary mb-3"></i>
+                                        <h4 class="h5">Propósito</h4>
+                                        <p class="small text-muted">Educação gratuita e acessível para todos</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nossa Equipe -->
+                <div class="col-12">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body p-4">
+                            <h2 class="h3 mb-4 text-primary">👥 Nossa Equipe</h2>
+                            <div class="row g-4">
+                                <!-- Time de Design -->
+                                <div class="col-md-4">
+                                    <div class="card h-100 team-member border-0">
+                                        <div class="card-body text-center">
+                                            <i class="bi bi-palette-fill display-4 text-primary mb-3"></i>
+                                            <h3 class="h5 mb-2">Time de Design</h3>
+                                            <p class="text-muted mb-1">César Henrique Ramos da Silva</p>
+                                            <small class="text-muted">UX/UI Design & Banco de Dados</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Time de Desenvolvimento -->
+                                <div class="col-md-4">
+                                    <div class="card h-100 team-member border-0">
+                                        <div class="card-body text-center">
+                                            <i class="bi bi-code-slash display-4 text-success mb-3"></i>
+                                            <h3 class="h5 mb-2">Time de Desenvolvimento</h3>
+                                            <p class="text-muted mb-1">Daniel Lemos Amparado Jr</p>
+                                            <small class="text-muted">Backend & Arquitetura do Sistema</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Time de Pesquisa -->
+                                <div class="col-md-4">
+                                    <div class="card h-100 team-member border-0">
+                                        <div class="card-body text-center">
+                                            <i class="bi bi-search display-4 text-info mb-3"></i>
+                                            <h3 class="h5 mb-2">Time de Pesquisa</h3>
+                                            <p class="text-muted mb-1">Victor Medeiros Fidalgo</p>
+                                            <small class="text-muted">Frontend & Conteúdo Educacional</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estatísticas (Opcional) -->
+                <div class="col-12">
+                    <div class="card shadow-sm border-0 bg-primary text-white">
+                        <div class="card-body p-4">
+                            <div class="row text-center">
+                                <div class="col-md-3">
+                                    <h3 class="h2 fw-bold">100+</h3>
+                                    <p class="mb-0">Recursos Educacionais</p>
+                                </div>
+                                <div class="col-md-3">
+                                    <h3 class="h2 fw-bold">5</h3>
+                                    <p class="mb-0">Etapas de Ensino</p>
+                                </div>
+                                <div class="col-md-3">
+                                    <h3 class="h2 fw-bold">100%</h3>
+                                    <p class="mb-0">Gratuito</p>
+                                </div>
+                                <div class="col-md-3">
+                                    <h3 class="h2 fw-bold">24/7</h3>
+                                    <p class="mb-0">Disponível</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </main>
+
+    <%- include('../partials/footer') %>
+</body>
+</html>

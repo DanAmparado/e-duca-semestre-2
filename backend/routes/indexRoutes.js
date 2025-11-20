@@ -1,4 +1,4 @@
-// backend/routes/indexRoutes.js (VERSÃO CORRIGIDA)
+// backend/routes/indexRoutes.js
 const express = require('express');
 const router = express.Router();
 
@@ -16,5 +16,19 @@ router.get('/sobre', (req, res) => {
         title: 'Sobre - E-DUCA'
     });
 });
+
+// Rota Notícias (em construção)
+router.get('/noticias', (req, res) => {
+    res.render('pages/noticias', {
+        user: req.session.user,
+        title: 'Notícias - E-DUCA'
+    });
+});
+
+// Rotas de recursos
+router.get('/recursos', recursosController.listarTodos);
+router.get('/recursos/educacao/:etapa', recursosController.listarPorEtapa);
+router.get('/recursos/busca', recursosController.buscarRecursos);
+router.get('/recursos/:id', recursosController.detalhesRecurso);
 
 module.exports = router;

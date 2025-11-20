@@ -1,61 +1,59 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container">
         <a class="navbar-brand" href="/">
-            <img src="/images/logo-placeholder.svg" alt="Logo Educação Acessível" height="40">
+            <img src="/images/logo%20simples%20branca.png" alt="E-DUCA" height="40" class="d-inline-block align-text-top">
         </a>
         
-        <!-- Botão para mobile -->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Alternar navegação">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
-
-        <div class="collapse navbar-collapse" id="mainNav">
-            <ul class="navbar-nav ms-auto">
-                <!-- Home -->
+        
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="/">Home</a>
+                    <a class="nav-link" href="/">Início</a>
                 </li>
-
-                <!-- Recursos (link direto) -->
-                <li class="nav-item">
-                    <a class="nav-link" href="/recursos">Recursos</a>
-                </li>
-
-                <!-- Educação Dropdown -->
+                
+                <!-- Dropdown Educação -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle" href="#" id="educacaoDropdown" 
+                       role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Educação
                     </a>
-                    <ul class="dropdown-menu">
+                    <ul class="dropdown-menu" aria-labelledby="educacaoDropdown">
                         <li><a class="dropdown-item" href="/recursos/educacao/basica">Educação Básica</a></li>
                         <li><a class="dropdown-item" href="/recursos/educacao/profissional">Educação Profissional</a></li>
-                        <li><a class="dropdown-item" href="/recursos/educacao/superior">Educação Superior</a></li>
+                        <li><a class="dropdown-item" href="/recursos/educacao/superior">Ensino Superior</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="/recursos">Todos os Recursos</a></li>
                     </ul>
                 </li>
-
-                <!-- Notícias -->
+                
                 <li class="nav-item">
                     <a class="nav-link" href="/noticias">Notícias</a>
                 </li>
-
-                <!-- Sobre -->
                 <li class="nav-item">
-                    <a class="nav-link" href="/sobre">Sobre Nós</a>
+                    <a class="nav-link" href="/sobre">Sobre</a>
                 </li>
+            </ul>
 
-                <!-- Autenticação -->
+            <ul class="navbar-nav">
                 <% if (user) { %>
+                    <!-- Dropdown Usuário -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-person-circle"></i> <%= user.email.split('@')[0] %>
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" 
+                           role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle"></i> <%= user.email %>
                         </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="/recomendacoes">🎯 Para Você</a></li>
-                            <li><a class="dropdown-item" href="/perfil">Meu Perfil</a></li>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="/perfil"><i class="bi bi-person me-2"></i>Meu Perfil</a></li>
+                            <li><a class="dropdown-item" href="/recomendacoes"><i class="bi bi-stars me-2"></i>Para Você</a></li>
+                            <% if (user.is_admin) { %>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/admin"><i class="bi bi-speedometer2 me-2"></i>Painel Admin</a></li>
+                            <% } %>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="/auth/logout">Sair</a></li>
+                            <li><a class="dropdown-item" href="/auth/logout"><i class="bi bi-box-arrow-right me-2"></i>Sair</a></li>
                         </ul>
                     </li>
                 <% } else { %>
@@ -67,14 +65,6 @@
                     </li>
                 <% } %>
             </ul>
-
-            <!-- Busca Rápida (Opcional - pode adicionar depois) -->
-            <!--
-            <form class="d-flex ms-2" action="/recursos/buscar" method="GET">
-                <input class="form-control me-2" type="search" name="q" placeholder="Buscar recursos..." aria-label="Buscar">
-                <button class="btn btn-outline-light" type="submit">Buscar</button>
-            </form>
-            -->
         </div>
     </div>
 </nav>

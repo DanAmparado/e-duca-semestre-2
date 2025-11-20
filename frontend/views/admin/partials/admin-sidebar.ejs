@@ -92,15 +92,27 @@
 .sidebar {
     width: 250px;
     min-height: 100vh;
-    transition: all 0.3s;
+    height: 100vh; /* ✅ Garante altura total */
+    position: fixed; /* ✅ Fixa a sidebar */
+    left: 0;
+    top: 0;
+    overflow-y: auto; /* ✅ Permite scroll se necessário */
+    z-index: 1000; /* ✅ Garante que fique acima do conteúdo */
 }
 
 .sidebar-content {
     display: flex;
     flex-direction: column;
-    height: 100vh;
-    position: fixed;
+    height: 100vh; /* ✅ Ocupa 100% da altura da viewport */
+    position: fixed; /* ✅ Mantém fixo durante o scroll */
     width: 250px;
+}
+
+/* ✅ Garante que o conteúdo principal não sobreponha a sidebar */
+.main-content {
+    margin-left: 250px; /* ✅ mesma largura da sidebar */
+    width: calc(100% - 250px);
+    min-height: 100vh;
 }
 
 .sidebar .nav-link {
@@ -125,5 +137,10 @@
 .sidebar .nav-link i {
     width: 20px;
     text-align: center;
+}
+
+body {
+    margin: 0;
+    padding: 0;
 }
 </style>

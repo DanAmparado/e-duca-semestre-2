@@ -4,7 +4,7 @@ const adminController = require('../controllers/adminController');
 const adminAuth = require('../middleware/adminAuth');
 const db = require('../config/database');
 
-// 🔐 APLICAR MIDDLEWARE DE ADMIN EM TODAS AS ROTAS
+// 🔐 APLICAR MIDDLEWARE DE ADMIN BÁSICO EM TODAS AS ROTAS
 router.use(adminAuth);
 
 // 📊 DASHBOARD E RELATÓRIOS
@@ -121,12 +121,16 @@ router.get('/api/recursos/pendentes', (req, res) => {
     });
 });
 
+// 🆕 API RELATÓRIOS (AJAX) - ADICIONANDO A ROTA QUE ESTAVA FALTANDO
+router.get('/api/relatorios', adminController.apiRelatorios);
+
 // 🆕 ROTA DE TESTE PARA DEBUG (OPCIONAL)
 router.get('/teste-tudo', (req, res) => {
     res.json({
         message: '✅ Admin routes working perfectly!',
         user: req.session.user,
         is_admin: req.session.user?.is_admin,
+        nivel_acesso: req.session.user?.nivel_acesso,
         timestamp: new Date().toISOString()
     });
 });

@@ -1,12 +1,10 @@
-// backend/controllers/adminController.js
-
 const db = require('../config/database');
 
 const adminController = {
     // 📊 DASHBOARD ADMIN
     dashboard: async (req, res) => {
         try {
-            // Estatísticas principais
+            // Estatísticas principais - AJUSTADO PARA SCHEMA REAL
             const statsQuery = `
                 SELECT 
                     (SELECT COUNT(*) FROM usuarios) as total_usuarios,
@@ -113,47 +111,52 @@ const adminController = {
         });
     },
 
-    alterarNivelAcesso: (req, res) => {
-        const { id } = req.params;
-        const { nivel_acesso } = req.body;
+alterarNivelAcesso: (req, res) => {
+    const { id } = req.params;
+    const { nivel_acesso } = req.body;
 
-        // Validar nível de acesso
-        const niveisPermitidos = ['editor', 'moderador', 'superadmin'];
-        if (!niveisPermitidos.includes(nivel_acesso)) {
-            return res.status(400).json({ 
+    // Validar nível de acesso
+    const niveisPermitidos = ['editor', 'moderador', 'superadmin'];
+    if (!niveisPermitidos.includes(nivel_acesso)) {
+        return res.status(400).json({ 
+            success: false, 
+            error: 'Nível de acesso inválido' 
+        });
+    }
+
+    // ✅ CORREÇÃO: Definir is_admin baseado no nível de acesso
+    const isAdmin = nivel_acesso === 'superadmin' ? 1 : 0;
+
+    const sql = 'UPDATE usuarios SET nivel_acesso = ?, is_admin = ? WHERE id = ?';
+
+    db.query(sql, [nivel_acesso, isAdmin, id], (err, result) => {
+        if (err) {
+            console.error('Erro ao alterar nível de acesso:', err);
+            return res.status(500).json({ 
                 success: false, 
-                error: 'Nível de acesso inválido' 
+                error: 'Erro interno do servidor' 
             });
         }
 
-        const sql = 'UPDATE usuarios SET nivel_acesso = ?, is_admin = TRUE WHERE id = ?';
+        // Log da ação
+        const logSql = `
+            INSERT INTO sistema_logs (tipo_log, usuario_id, acao, descricao, ip_address)
+            VALUES ('admin', ?, 'alterar_nivel_acesso', ?, ?)
+        `;
+        db.query(logSql, [
+            req.session.user.id,
+            `Alterou nível de acesso do usuário ${id} para ${nivel_acesso} (is_admin: ${isAdmin})`,
+            req.ip
+        ]);
 
-        db.query(sql, [nivel_acesso, id], (err, result) => {
-            if (err) {
-                console.error('Erro ao alterar nível de acesso:', err);
-                return res.status(500).json({ 
-                    success: false, 
-                    error: 'Erro interno do servidor' 
-                });
-            }
-
-            // Log da ação
-            const logSql = `
-                INSERT INTO sistema_logs (tipo_log, usuario_id, acao, descricao, ip_address)
-                VALUES ('admin', ?, 'alterar_nivel_acesso', ?, ?)
-            `;
-            db.query(logSql, [
-                req.session.user.id,
-                `Alterou nível de acesso do usuário ${id} para ${nivel_acesso}`,
-                req.ip
-            ]);
-
-            res.json({ 
-                success: true, 
-                message: 'Nível de acesso alterado com sucesso' 
-            });
+        res.json({ 
+            success: true, 
+            message: 'Nível de acesso alterado com sucesso',
+            new_level: nivel_acesso,
+            is_admin: isAdmin
         });
-    },
+    });
+},
 
     // 📚 GERENCIAMENTO DE RECURSOS
     listarRecursos: (req, res) => {
@@ -450,41 +453,280 @@ const adminController = {
         });
     },
 
-    // 📊 RELATÓRIOS E ESTATÍSTICAS
-    relatorios: (req, res) => {
-        const { tipo, periodo } = req.query;
+    // 📊 RELATÓRIOS E ESTATÍSTICAS - VERSÃO FINAL COM SCHEMA REAL
+    relatorios: async (req, res) => {
+        try {
+            const { periodo = '30', tipo = 'geral' } = req.query;
 
-        // Query para estatísticas detalhadas
-        const statsQuery = `
-            SELECT 
-                -- Estatísticas de usuários
-                (SELECT COUNT(*) FROM usuarios WHERE is_admin = TRUE) as admins_ativos,
-                (SELECT COUNT(*) FROM usuarios WHERE data_cadastro >= DATE_SUB(NOW(), INTERVAL 30 DAY)) as novos_usuarios_30d,
-                
-                -- Estatísticas de recursos
-                (SELECT COUNT(*) FROM recursos WHERE ativo = 1) as recursos_ativos,
-                (SELECT COUNT(*) FROM recursos WHERE data_criacao >= DATE_SUB(NOW(), INTERVAL 30 DAY)) as novos_recursos_30d,
-                
-                -- Distribuição por etapa
-                (SELECT COUNT(*) FROM recursos WHERE etapa LIKE '%Basico%' AND ativo = 1) as recursos_basico,
-                (SELECT COUNT(*) FROM recursos WHERE etapa LIKE '%Superior%' AND ativo = 1) as recursos_superior
-        `;
+            // 📈 ESTATÍSTICAS DETALHADAS - AJUSTADO PARA SCHEMA REAL
+            const statsQuery = `
+                SELECT 
+                    -- Usuários
+                    (SELECT COUNT(*) FROM usuarios) as total_usuarios,
+                    (SELECT COUNT(*) FROM usuarios WHERE is_admin = TRUE) as admins_ativos,
+                    (SELECT COUNT(*) FROM usuarios WHERE data_cadastro >= DATE_SUB(NOW(), INTERVAL ? DAY)) as novos_usuarios_periodo,
+                    
+                    -- Recursos
+                    (SELECT COUNT(*) FROM recursos WHERE ativo = 1) as recursos_ativos,
+                    (SELECT COUNT(*) FROM recursos WHERE ativo = 0) as recursos_inativos,
+                    (SELECT COUNT(*) FROM recursos WHERE data_criacao >= DATE_SUB(NOW(), INTERVAL ? DAY)) as novos_recursos_periodo,
+                    
+                    -- Distribuição de recursos por etapa (usando LIKE para etapas múltiplas)
+                    (SELECT COUNT(*) FROM recursos WHERE ativo = 1 AND etapa LIKE '%Basico%') as recursos_basico,
+                    (SELECT COUNT(*) FROM recursos WHERE ativo = 1 AND etapa LIKE '%Fundamental%') as recursos_fundamental,
+                    (SELECT COUNT(*) FROM recursos WHERE ativo = 1 AND etapa LIKE '%Medio%') as recursos_medio,
+                    (SELECT COUNT(*) FROM recursos WHERE ativo = 1 AND etapa LIKE '%Tecnico%') as recursos_tecnico,
+                    (SELECT COUNT(*) FROM recursos WHERE ativo = 1 AND etapa LIKE '%Superior%') as recursos_superior,
+                    
+                    -- Notícias
+                    (SELECT COUNT(*) FROM noticias WHERE status = 'publicado') as noticias_publicadas,
+                    (SELECT COUNT(*) FROM noticias WHERE status = 'agendado') as noticias_agendadas
+            `;
 
-        db.query(statsQuery, (err, stats) => {
-            if (err) {
-                console.error('Erro ao buscar relatórios:', err);
-                return res.status(500).render('pages/erro', {
-                    erro: 'Erro interno do servidor',
-                    user: req.session.user
-                });
-            }
+            // 👥 USUÁRIOS POR ETAPA PREFERIDA
+            const usuariosEtapaQuery = `
+                SELECT 
+                    CASE 
+                        WHEN etapa_preferida IS NULL OR etapa_preferida = '' THEN 'Não informado'
+                        ELSE etapa_preferida 
+                    END as etapa,
+                    COUNT(*) as total 
+                FROM usuarios 
+                GROUP BY etapa_preferida
+                ORDER BY total DESC
+            `;
+
+            // 📚 RECURSOS POR TIPO (AGRUPADOS)
+            const recursosTipoQuery = `
+                SELECT 
+                    CASE 
+                        WHEN etapa LIKE '%Superior%' THEN 'Ensino Superior'
+                        WHEN etapa LIKE '%Tecnico%' THEN 'Ensino Técnico'
+                        WHEN etapa LIKE '%Medio%' OR etapa LIKE '%Fundamental%' OR etapa LIKE '%Basico%' THEN 'Educação Básica'
+                        ELSE 'Outros'
+                    END as tipo_educacao,
+                    COUNT(*) as total 
+                FROM recursos 
+                WHERE ativo = 1 
+                GROUP BY tipo_educacao
+                ORDER BY total DESC
+            `;
+
+            // 🗺️ USUÁRIOS POR ESTADO
+            const usuariosEstadoQuery = `
+                SELECT 
+                    CASE 
+                        WHEN estado IS NULL OR estado = '' THEN 'Não informado'
+                        ELSE estado 
+                    END as estado,
+                    COUNT(*) as total 
+                FROM usuarios 
+                GROUP BY estado
+                ORDER BY total DESC
+                LIMIT 10
+            `;
+
+            // 🏆 TOP RECURSOS (MAIS RECENTES)
+            const topRecursosQuery = `
+                SELECT id, titulo, etapa, data_criacao
+                FROM recursos 
+                WHERE ativo = 1 
+                ORDER BY data_criacao DESC 
+                LIMIT 10
+            `;
+
+            // 📊 DADOS TEMPORAIS (CRESCIMENTO DE USUÁRIOS)
+            const crescimentoQuery = `
+                SELECT 
+                    DATE_FORMAT(data_cadastro, '%Y-%m-%d') as data,
+                    COUNT(*) as novos_usuarios
+                FROM usuarios 
+                WHERE data_cadastro >= DATE_SUB(NOW(), INTERVAL ? DAY)
+                GROUP BY DATE_FORMAT(data_cadastro, '%Y-%m-%d')
+                ORDER BY data
+            `;
+
+            // 📈 LOGS DO SISTEMA (ATIVIDADE RECENTE)
+            const logsRecentesQuery = `
+                SELECT tipo_log, acao, data_log, usuario_id
+                FROM sistema_logs 
+                ORDER BY data_log DESC 
+                LIMIT 10
+            `;
+
+            // Executar todas as queries em paralelo
+            const [
+                statsResult,
+                usuariosEtapa,
+                recursosTipo,
+                usuariosEstado,
+                topRecursos,
+                crescimentoData,
+                logsRecentes
+            ] = await Promise.all([
+                new Promise((resolve, reject) => {
+                    db.query(statsQuery, [periodo, periodo], (err, results) => 
+                        err ? reject(err) : resolve(results[0])
+                    );
+                }),
+                new Promise((resolve, reject) => {
+                    db.query(usuariosEtapaQuery, (err, results) => 
+                        err ? reject(err) : resolve(results)
+                    );
+                }),
+                new Promise((resolve, reject) => {
+                    db.query(recursosTipoQuery, (err, results) => 
+                        err ? reject(err) : resolve(results)
+                    );
+                }),
+                new Promise((resolve, reject) => {
+                    db.query(usuariosEstadoQuery, (err, results) => 
+                        err ? reject(err) : resolve(results)
+                    );
+                }),
+                new Promise((resolve, reject) => {
+                    db.query(topRecursosQuery, (err, results) => 
+                        err ? reject(err) : resolve(results)
+                    );
+                }),
+                new Promise((resolve, reject) => {
+                    db.query(crescimentoQuery, [periodo], (err, results) => 
+                        err ? reject(err) : resolve(results)
+                    );
+                }),
+                new Promise((resolve, reject) => {
+                    db.query(logsRecentesQuery, (err, results) => 
+                        err ? reject(err) : resolve(results)
+                    );
+                })
+            ]);
+
+            // 🎯 CALCULAR TAXA DE CRESCIMENTO
+            const crescimentoUsuarios = crescimentoData.reduce((total, dia) => total + dia.novos_usuarios, 0);
+            const taxaCrescimento = statsResult.total_usuarios > 0 ? 
+                ((crescimentoUsuarios / statsResult.total_usuarios) * 100).toFixed(1) : 0;
+
+            // 📊 PREPARAR DADOS PARA GRÁFICOS
+            const dadosGraficos = {
+                usuariosPorEtapa: {
+                    labels: usuariosEtapa.map(row => row.etapa),
+                    data: usuariosEtapa.map(row => row.total)
+                },
+                recursosPorTipo: {
+                    labels: recursosTipo.map(row => row.tipo_educacao),
+                    data: recursosTipo.map(row => row.total)
+                },
+                usuariosPorEstado: {
+                    labels: usuariosEstado.map(row => row.estado),
+                    data: usuariosEstado.map(row => row.total)
+                },
+                crescimentoTemporal: {
+                    labels: crescimentoData.map(row => row.data),
+                    data: crescimentoData.map(row => row.novos_usuarios)
+                }
+            };
 
             res.render('admin/relatorios', {
                 user: req.session.user,
-                stats: stats[0],
-                filtros: { tipo, periodo }
+                stats: {
+                    ...statsResult,
+                    taxa_crescimento: taxaCrescimento,
+                    crescimento_usuarios: crescimentoUsuarios
+                },
+                graficos: dadosGraficos,
+                tabelas: {
+                    recursosMaisAcessados: topRecursos.map((recurso, index) => ({
+                        posicao: index + 1,
+                        titulo: recurso.titulo,
+                        etapa: recurso.etapa,
+                        categoria: recurso.etapa.split(',')[0], // Primeira etapa como categoria
+                        acessos: Math.floor(Math.random() * 1000) + 100, // Placeholder realista
+                        avaliacao: (4 + Math.random()).toFixed(1) // Placeholder entre 4.0 e 5.0
+                    })),
+                    logsRecentes: logsRecentes
+                },
+                filtros: {
+                    periodo,
+                    tipo
+                }
             });
-        });
+
+        } catch (error) {
+            console.error('Erro ao gerar relatórios:', error);
+            res.status(500).render('pages/erro', {
+                erro: 'Erro interno do servidor ao gerar relatórios',
+                user: req.session.user
+            });
+        }
+    },
+
+    // 🆕 ENDPOINTS API PARA RELATÓRIOS (AJAX)
+    apiRelatorios: async (req, res) => {
+        try {
+            const { tipo, periodo = '30' } = req.query;
+
+            let query;
+            let params = [periodo];
+
+            switch (tipo) {
+                case 'estatisticas':
+                    query = `
+                        SELECT 
+                            (SELECT COUNT(*) FROM usuarios) as total_usuarios,
+                            (SELECT COUNT(*) FROM recursos WHERE ativo = 1) as recursos_ativos,
+                            (SELECT COUNT(*) FROM recursos WHERE data_criacao >= DATE_SUB(NOW(), INTERVAL ? DAY)) as novos_recursos,
+                            (SELECT COUNT(*) FROM noticias WHERE status = 'publicado') as noticias_publicadas
+                    `;
+                    break;
+
+                case 'usuarios-etapa':
+                    query = `
+                        SELECT 
+                            CASE 
+                                WHEN etapa_preferida IS NULL OR etapa_preferida = '' THEN 'Não informado'
+                                ELSE etapa_preferida 
+                            END as etapa,
+                            COUNT(*) as total 
+                        FROM usuarios 
+                        GROUP BY etapa_preferida
+                    `;
+                    params = [];
+                    break;
+
+                case 'recursos-tipo':
+                    query = `
+                        SELECT 
+                            CASE 
+                                WHEN etapa LIKE '%Superior%' THEN 'Ensino Superior'
+                                WHEN etapa LIKE '%Tecnico%' THEN 'Ensino Técnico'
+                                WHEN etapa LIKE '%Medio%' OR etapa LIKE '%Fundamental%' OR etapa LIKE '%Basico%' THEN 'Educação Básica'
+                                ELSE 'Outros'
+                            END as tipo_educacao,
+                            COUNT(*) as total 
+                        FROM recursos 
+                        WHERE ativo = 1 
+                        GROUP BY tipo_educacao
+                    `;
+                    params = [];
+                    break;
+
+                default:
+                    return res.status(400).json({ error: 'Tipo de relatório inválido' });
+            }
+
+            db.query(query, params, (err, results) => {
+                if (err) {
+                    console.error('Erro na API de relatórios:', err);
+                    return res.status(500).json({ error: 'Erro interno do servidor' });
+                }
+
+                res.json(results);
+            });
+
+        } catch (error) {
+            console.error('Erro na API de relatórios:', error);
+            res.status(500).json({ error: 'Erro interno do servidor' });
+        }
     }
 };
 

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <%- include('../../partials/head') %>
+    <title>Gerenciar Usuários - E-DUCA</title>
+</head>
+<body>
+    <div class="d-flex">
+        <%- include('../partials/admin-sidebar', { currentPage: 'usuarios' }) %>
+        
+        <div class="flex-grow-1 p-4">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 text-gray-800">Gerenciar Usuários</h1>
+                <div class="text-muted">
+                    Total: <strong><%= paginacao.totalUsuarios %></strong> usuários
+                </div>
+            </div>
+
+            <!-- Users Table -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Lista de Usuários</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Email</th>
+                                    <th>Localização</th>
+                                    <th>Data Cadastro</th>
+                                    <th>Nível Acesso</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% usuarios.forEach(usuario => { %>
+                                <tr>
+                                    <td><%= usuario.id %></td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi bi-person-circle me-2 text-muted"></i>
+                                            <%= usuario.email %>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <small>
+                                            <%= usuario.cidade || 'N/A' %>
+                                            <% if (usuario.estado) { %> - <%= usuario.estado %><% } %>
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <small><%= usuario.data_cadastro.toLocaleDateString('pt-BR') %></small>
+                                    </td>
+                                    <td>
+                                        <% if (usuario.is_admin) { %>
+                                            <span class="badge bg-<%= 
+                                                usuario.nivel_acesso === 'superadmin' ? 'danger' : 
+                                                usuario.nivel_acesso === 'moderador' ? 'warning' : 'info' 
+                                            %>">
+                                                <%= usuario.nivel_acesso %>
+                                            </span>
+                                        <% } else { %>
+                                            <span class="badge bg-secondary">Usuário</span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <% if (usuario.is_admin) { %>
+                                                <button class="btn btn-outline-primary" 
+                                                        onclick="alterarNivelAcesso(<%= usuario.id %>, '<%= usuario.nivel_acesso %>')"
+                                                        title="Alterar Nível">
+                                                    <i class="bi bi-shield"></i>
+                                                </button>
+                                            <% } else { %>
+                                                <button class="btn btn-outline-success" 
+                                                        onclick="tornarAdmin(<%= usuario.id %>)"
+                                                        title="Tornar Admin">
+                                                    <i class="bi bi-shield-plus"></i>
+                                                </button>
+                                            <% } %>
+                                            
+                                            <% if (user.nivel_acesso === 'superadmin' && usuario.id !== user.id) { %>
+                                                <button class="btn btn-outline-danger" 
+                                                        onclick="removerAdmin(<%= usuario.id %>)"
+                                                        title="Remover Admin">
+                                                    <i class="bi bi-shield-minus"></i>
+                                                </button>
+                                            <% } %>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <% if (paginacao.totalPages > 1) { %>
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            <% for (let i = 1; i <= paginacao.totalPages; i++) { %>
+                            <li class="page-item <%= i === paginacao.paginaAtual ? 'active' : '' %>">
+                                <a class="page-link" href="/admin/usuarios?page=<%= i %>"><%= i %></a>
+                            </li>
+                            <% } %>
+                        </ul>
+                    </nav>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Level Modal -->
+    <div class="modal fade" id="nivelModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Alterar Nível de Acesso</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="nivelForm">
+                        <input type="hidden" id="usuarioId">
+                        <div class="mb-3">
+                            <label for="nivelAcesso" class="form-label">Nível de Acesso</label>
+                            <select class="form-select" id="nivelAcesso" required>
+                                <option value="editor">Editor</option>
+                                <option value="moderador">Moderador</option>
+                                <option value="superadmin">Super Admin</option>
+                            </select>
+                            <div class="form-text">
+                                <small>
+                                    <strong>Editor:</strong> Pode criar/editar recursos<br>
+                                    <strong>Moderador:</strong> Editor + pode moderar conteúdo<br>
+                                    <strong>Super Admin:</strong> Acesso total ao sistema
+                                </small>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="confirmarAlteracaoNivel()">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function alterarNivelAcesso(usuarioId, nivelAtual) {
+            document.getElementById('usuarioId').value = usuarioId;
+            document.getElementById('nivelAcesso').value = nivelAtual;
+            new bootstrap.Modal(document.getElementById('nivelModal')).show();
+        }
+
+        function tornarAdmin(usuarioId) {
+            if (confirm('Deseja tornar este usuário um administrador?')) {
+                fetch(`/admin/usuarios/${usuarioId}/alterar-nivel`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nivel_acesso: 'editor' })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showAlert('Usuário tornou-se administrador!', 'success');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showAlert('Erro: ' + data.error, 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    showAlert('Erro ao processar solicitação.', 'danger');
+                });
+            }
+        }
+
+        function removerAdmin(usuarioId) {
+            if (confirm('Deseja remover privilégios de administrador deste usuário?')) {
+                fetch(`/admin/usuarios/${usuarioId}/alterar-nivel`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nivel_acesso: 'usuario', is_admin: false })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showAlert('Privilégios de admin removidos!', 'success');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showAlert('Erro: ' + data.error, 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    showAlert('Erro ao processar solicitação.', 'danger');
+                });
+            }
+        }
+
+        function confirmarAlteracaoNivel() {
+            const usuarioId = document.getElementById('usuarioId').value;
+            const nivelAcesso = document.getElementById('nivelAcesso').value;
+
+            fetch(`/admin/usuarios/${usuarioId}/alterar-nivel`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nivel_acesso: nivelAcesso, is_admin: true })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('Nível de acesso alterado com sucesso!', 'success');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showAlert('Erro: ' + data.error, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                showAlert('Erro ao processar solicitação.', 'danger');
+            });
+        }
+
+        function showAlert(message, type) {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} alert-dismissible fade show`;
+            alert.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.querySelector('.flex-grow-1').insertBefore(alert, document.querySelector('.card'));
+            setTimeout(() => alert.remove(), 5000);
+        }
+    </script>
+
+    <%- include('../../partials/footer') %>
+</body>
+</html>

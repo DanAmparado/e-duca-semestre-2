@@ -1,8 +1,92 @@
 <footer class="bg-dark text-light py-4 mt-5">
     <div class="container text-center">
+        <img src="/images/logo%20simples%20branca.png" alt="E-DUCA" class="footer-logo">
+        <p class="mb-2">Plataforma de democratização do acesso à educação</p>
         <a href="/" class="btn btn-outline-light btn-sm mb-3">Voltar ao Início</a>
-        <p>&copy; 2025 Educação Acessível</p>
+        <p class="mb-0">&copy; 2025 E-DUCA - Todos os direitos reservados</p>
     </div>
 </footer>
+
+<!-- ✅ BOOTSTRAP JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- ✅ SCRIPT UNIFICADO PARA TODAS AS PÁGINAS -->
+<script>
+// Aguarda o DOM e Bootstrap estarem totalmente carregados
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Inicializando aplicação...');
+    
+    // Pequeno delay para garantir que o Bootstrap está carregado
+    setTimeout(function() {
+        inicializarAplicacao();
+    }, 100);
+});
+
+function inicializarAplicacao() {
+    console.log('🔧 Inicializando componentes Bootstrap...');
+    
+    // 1. Verificar se Bootstrap está disponível
+    if (typeof bootstrap === 'undefined') {
+        console.error('❌ Bootstrap não carregado!');
+        return;
+    }
+    
+    console.log('✅ Bootstrap carregado com sucesso');
+    
+    // 2. Inicializar dropdowns
+    const dropdowns = document.querySelectorAll('.dropdown-toggle');
+    console.log('🎯 Encontrados', dropdowns.length, 'dropdowns');
+    
+    dropdowns.forEach((dropdown, index) => {
+        try {
+            // Verificar se já foi inicializado
+            if (!dropdown._bsDropdown) {
+                const bsDropdown = new bootstrap.Dropdown(dropdown);
+                console.log(`✅ Dropdown ${index + 1} inicializado`);
+                
+                // Debug de eventos
+                dropdown.addEventListener('show.bs.dropdown', function() {
+                    console.log('📂 Dropdown abrindo:', this);
+                });
+            } else {
+                console.log(`ℹ️ Dropdown ${index + 1} já inicializado`);
+            }
+        } catch (error) {
+            console.error(`❌ Erro no dropdown ${index + 1}:`, error);
+        }
+    });
+    
+    // 3. Inicializar outros componentes se necessário
+    const navbarToggler = document.querySelector('.navbar-toggler');
+    if (navbarToggler) {
+        console.log('✅ Navbar toggler encontrado');
+    }
+    
+    console.log('🎉 Aplicação inicializada com sucesso!');
+}
+
+// Fallback: se ainda houver problemas, tentar novamente após 1 segundo
+setTimeout(function() {
+    const dropdowns = document.querySelectorAll('.dropdown-toggle');
+    let naoInicializados = 0;
+    
+    dropdowns.forEach(dropdown => {
+        if (!dropdown._bsDropdown) {
+            naoInicializados++;
+            try {
+                new bootstrap.Dropdown(dropdown);
+                console.log('🔄 Dropdown inicializado via fallback');
+            } catch (e) {
+                console.error('❌ Fallback falhou:', e);
+            }
+        }
+    });
+    
+    if (naoInicializados > 0) {
+        console.log(`🔄 ${naoInicializados} dropdowns inicializados via fallback`);
+    }
+}, 1000);
+</script>
+
 </body>
 </html>

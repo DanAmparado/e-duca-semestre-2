@@ -1,4 +1,3 @@
-// backend/server.js
 
 const express = require('express');
 const session = require('express-session');
@@ -12,7 +11,7 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '../frontend/views'));
 app.use(express.static(path.join(__dirname, '../frontend/public')));
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json()); // 🆕 IMPORTANTE: Para receber JSON nas requisições
+app.use(express.json());
 
 // 🔐 SESSÕES
 app.use(session({
@@ -26,14 +25,8 @@ app.use(session({
 
 // 🏠 MIDDLEWARE PARA VARIÁVEIS GLOBAIS
 app.use((req, res, next) => {
-    // Disponibilizar user em todas as views
     res.locals.user = req.session.user;
     next();
-});
-
-// 🏠 ROTAS PÚBLICAS
-app.get('/', (req, res) => {
-    res.render('pages/index', { user: req.session.user });
 });
 
 // 🧪 ROTA DE TESTE DO BANCO
@@ -47,63 +40,36 @@ app.get('/test-db', (req, res) => {
     });
 });
 
-// 👤 ROTA DE PERFIL
-app.get('/perfil', (req, res) => {
-    if (!req.session.user) {
-        return res.redirect('/auth/login');
-    }
-    res.render('pages/perfil', { user: req.session.user });
-});
+// 🔄 CARREGAR TODAS AS ROTAS DOS ARQUIVOS (ORDEM CORRIGIDA)
+console.log('🔄 Carregando rotas...');
 
-// 🔐 ROTAS DE AUTENTICAÇÃO
+// 🔐 ROTAS DE AUTENTICAÇÃO (primeiro - mais genéricas)
 const authRoutes = require('./routes/authRoutes');
 app.use('/auth', authRoutes);
 
-// 📚 ROTAS DE RECURSOS EDUCACIONAIS
+// 🏠 ROTAS PRINCIPAIS 
+const indexRoutes = require('./routes/indexRoutes');
+app.use('/', indexRoutes);
+
+// 📚 ROTAS DE RECURSOS
 const recursosRoutes = require('./routes/recursosRoutes');
 app.use('/recursos', recursosRoutes);
 
-// 🎯 ROTAS DE RECOMENDAÇÕES
-const recomendacoesRoutes = require('./routes/recomendacoesRoutes');
-app.use('/recomendacoes', recomendacoesRoutes);
+// 👤 ROTAS DE USUÁRIO 
+const usuariosRoutes = require('./routes/usuariosRoutes');
+app.use('/', usuariosRoutes);
+
+// 📰 ROTAS DE NOTÍCIAS
+const noticiasRoutes = require('./routes/noticiasRoutes');
+app.use('/noticias', noticiasRoutes);
 
 // 🛡️ ROTAS ADMINISTRATIVAS
 const adminRoutes = require('./routes/adminRoutes');
 app.use('/admin', adminRoutes);
 
-// 🎓 ROTAS DE EDUCAÇÃO (REDIRECTS AMIGÁVEIS)
-app.get('/educacao/basica', (req, res) => {
-    res.redirect('/recursos/educacao/basica');
-});
-
-app.get('/educacao/fundamental', (req, res) => {
-    res.redirect('/recursos/educacao/fundamental');
-});
-
-app.get('/educacao/medio', (req, res) => {
-    res.redirect('/recursos/educacao/medio');
-});
-
-app.get('/educacao/profissional', (req, res) => {
-    res.redirect('/recursos/educacao/profissional');
-});
-
-app.get('/educacao/superior', (req, res) => {
-    res.redirect('/recursos/educacao/superior');
-});
-
-// 📰 ROTA DE NOTÍCIAS (PLACEHOLDER)
-app.get('/noticias', (req, res) => {
-    res.render('pages/noticias', { 
-        user: req.session.user,
-        noticias: [] // Para implementação futura
-    });
-});
-
-// ℹ️ ROTA SOBRE
-app.get('/sobre', (req, res) => {
-    res.render('pages/sobre', { user: req.session.user });
-});
+// 🎯 ROTAS DE RECOMENDAÇÕES (específicas)
+const recomendacoesRoutes = require('./routes/recomendacoesRoutes');
+app.use('/recomendacoes', recomendacoesRoutes);
 
 // ❌ ROTA DE ERRO 404
 app.use((req, res) => {
@@ -128,4 +94,6 @@ app.listen(PORT, () => {
     console.log(`🚀 Servidor rodando: http://localhost:${PORT}`);
     console.log(`📊 Painel Admin: http://localhost:${PORT}/admin`);
     console.log(`🎯 Recomendações: http://localhost:${PORT}/recomendacoes`);
+    console.log(`👤 Perfil: http://localhost:${PORT}/perfil`);
+    console.log(`✅ Rotas carregadas: auth, index, recursos, usuarios, admin`);
 });

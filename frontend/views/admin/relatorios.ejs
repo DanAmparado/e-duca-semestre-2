@@ -3,69 +3,671 @@
 <head>
     <%- include('../partials/head') %>
     <title>Relatórios - E-DUCA</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .stat-card {
+            transition: transform 0.2s;
+            border-left: 4px solid #007bff;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        .print-only {
+            display: none;
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block;
+            }
+            .card {
+                border: 1px solid #000 !important;
+                break-inside: avoid;
+            }
+            .stat-card {
+                border-left: 4px solid #000 !important;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="d-flex">
-        <%- include('./partials/admin-sidebar', { currentPage: 'relatorios' }) %>
+        <%- include('partials/admin-sidebar', { currentPage: 'relatorios' }) %>
         
-        <div class="flex-grow-1 p-4">
+        <div class="main-content p-4">
             <div class="container-fluid">
-                <h1 class="h3 mb-4 text-gray-800">Relatórios e Estatísticas</h1>
-                
-                <div class="alert alert-info">
-                    <h5><i class="bi bi-info-circle me-2"></i>Funcionalidade em Desenvolvimento</h5>
-                    <p class="mb-0">Os relatórios detalhados e estatísticas avançadas estão em desenvolvimento.</p>
+                <!-- Cabeçalho -->
+                <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                    <div>
+                        <h1 class="h3 mb-0 text-gray-800">Relatórios do Sistema</h1>
+                        <p class="text-muted mb-0">Dados atualizados em tempo real</p>
+                    </div>
+                    <div class="btn-group no-print">
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-download me-1"></i>Exportar
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="exportToPDF()">PDF</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="exportToCSV()">CSV</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="exportToExcel()">Excel</a></li>
+                        </ul>
+                        <button class="btn btn-primary" onclick="refreshData()">
+                            <i class="bi bi-arrow-clockwise me-1"></i>Atualizar
+                        </button>
+                    </div>
                 </div>
 
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="card shadow mb-4">
-                            <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary">Estatísticas Atuais</h6>
+                <!-- Cabeçalho de Impressão -->
+                <div class="print-only text-center mb-4">
+                    <h2>Relatório do Sistema E-DUCA</h2>
+                    <p class="text-muted">Gerado em: <span id="dataGeracao"></span></p>
+                    <hr>
+                </div>
+
+                <!-- Filtros -->
+                <div class="card shadow mb-4 no-print">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Filtros</h6>
+                    </div>
+                    <div class="card-body">
+                        <form id="filtrosForm" method="GET">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="form-label">Período</label>
+                                    <select class="form-select" id="periodo" name="periodo">
+                                        <option value="7" <%= filtros.periodo === '7' ? 'selected' : '' %>>Últimos 7 dias</option>
+                                        <option value="30" <%= filtros.periodo === '30' ? 'selected' : '' %>>Últimos 30 dias</option>
+                                        <option value="90" <%= filtros.periodo === '90' ? 'selected' : '' %>>Últimos 3 meses</option>
+                                        <option value="365" <%= filtros.periodo === '365' ? 'selected' : '' %>>Último ano</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Tipo de Relatório</label>
+                                    <select class="form-select" id="tipoRelatorio" name="tipo">
+                                        <option value="geral" <%= filtros.tipo === 'geral' ? 'selected' : '' %>>Geral</option>
+                                        <option value="usuarios" <%= filtros.tipo === 'usuarios' ? 'selected' : '' %>>Usuários</option>
+                                        <option value="recursos" <%= filtros.tipo === 'recursos' ? 'selected' : '' %>>Recursos</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-success w-100">
+                                        <i class="bi bi-filter me-1"></i>Aplicar Filtros
+                                    </button>
+                                </div>
+                                <div class="col-md-3 d-flex align-items-end">
+                                    <a href="/admin/relatorios" class="btn btn-outline-secondary w-100">
+                                        <i class="bi bi-x-circle me-1"></i>Limpar Filtros
+                                    </a>
+                                </div>
                             </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Cards de Estatísticas -->
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card stat-card border-left-primary shadow h-100 py-2">
                             <div class="card-body">
-                                <div class="row text-center">
-                                    <div class="col-6 mb-3">
-                                        <div class="h4 text-primary"><%= stats.total_usuarios %></div>
-                                        <small class="text-muted">Total Usuários</small>
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                            Total de Usuários</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                            <%= stats.total_usuarios.toLocaleString('pt-BR') %>
+                                        </div>
+                                        <div class="text-xs text-muted mt-1">
+                                            +<%= stats.crescimento_usuarios %> novos (<%= stats.taxa_crescimento %>%)
+                                        </div>
                                     </div>
-                                    <div class="col-6 mb-3">
-                                        <div class="h4 text-success"><%= stats.recursos_ativos %></div>
-                                        <small class="text-muted">Recursos Ativos</small>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="h4 text-warning"><%= stats.recursos_inativos %></div>
-                                        <small class="text-muted">Recursos Inativos</small>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="h4 text-info"><%= stats.noticias_publicadas %></div>
-                                        <small class="text-muted">Notícias Publicadas</small>
+                                    <div class="col-auto">
+                                        <i class="bi bi-people fa-2x text-gray-300"></i>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="col-md-6">
-                        <div class="card shadow mb-4">
-                            <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-success">Próximos Recursos</h6>
-                            </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card stat-card border-left-success shadow h-100 py-2">
                             <div class="card-body">
-                                <ul class="list-unstyled">
-                                    <li class="mb-2"><i class="bi bi-clock text-warning me-2"></i>Gráficos de uso</li>
-                                    <li class="mb-2"><i class="bi bi-clock text-warning me-2"></i>Relatórios por período</li>
-                                    <li class="mb-2"><i class="bi bi-clock text-warning me-2"></i>Estatísticas de acesso</li>
-                                    <li class="mb-2"><i class="bi bi-clock text-warning me-2"></i>Exportação de dados</li>
-                                </ul>
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                            Recursos Ativos</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                            <%= stats.recursos_ativos.toLocaleString('pt-BR') %>
+                                        </div>
+                                        <div class="text-xs text-muted mt-1">
+                                            +<%= stats.novos_recursos_periodo %> novos
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-collection-play fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card stat-card border-left-info shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                            Administradores</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                            <%= stats.admins_ativos.toLocaleString('pt-BR') %>
+                                        </div>
+                                        <div class="text-xs text-muted mt-1">
+                                            <%= ((stats.admins_ativos / stats.total_usuarios) * 100).toFixed(1) %>% do total
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-shield-check fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card stat-card border-left-warning shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                            Recursos Pendentes</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                            <%= stats.recursos_inativos.toLocaleString('pt-BR') %>
+                                        </div>
+                                        <div class="text-xs text-muted mt-1">
+                                            Aguardando moderação
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-clock-history fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráficos -->
+                <div class="row">
+                    <!-- Gráfico de Usuários por Etapa -->
+                    <div class="col-xl-6 col-lg-6">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                                <h6 class="m-0 font-weight-bold text-primary">Usuários por Etapa de Ensino</h6>
+                                <span class="badge bg-primary"><%= graficos.usuariosPorEtapa.data.reduce((a, b) => a + b, 0) %> usuários</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="usuariosEtapaChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gráfico de Recursos por Tipo -->
+                    <div class="col-xl-6 col-lg-6">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                                <h6 class="m-0 font-weight-bold text-primary">Recursos por Tipo de Educação</h6>
+                                <span class="badge bg-primary"><%= stats.recursos_ativos %> recursos</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="recursosTipoChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Gráfico de Usuários por Estado -->
+                    <div class="col-xl-6 col-lg-6">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                                <h6 class="m-0 font-weight-bold text-primary">Distribuição Geográfica de Usuários</h6>
+                                <span class="badge bg-primary"><%= stats.total_usuarios %> usuários</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="usuariosEstadoChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gráfico de Crescimento -->
+                    <div class="col-xl-6 col-lg-6">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                                <h6 class="m-0 font-weight-bold text-primary">Crescimento de Usuários (Últimos <%= filtros.periodo %> dias)</h6>
+                                <span class="badge bg-success">+<%= stats.crescimento_usuarios %> novos</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="crescimentoChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabelas de Dados -->
+                <div class="row">
+                    <!-- Recursos Mais Recentes -->
+                    <div class="col-xl-8 col-lg-7">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                                <h6 class="m-0 font-weight-bold text-primary">Top 10 - Recursos Mais Recentes</h6>
+                                <span class="badge bg-primary">Atualizado agora</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Posição</th>
+                                                <th>Título</th>
+                                                <th>Etapa</th>
+                                                <th>Categoria</th>
+                                                <th>Data Criação</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% tabelas.recursosMaisAcessados.forEach((recurso, index) => { %>
+                                            <tr>
+                                                <td><span class="badge bg-primary"><%= recurso.posicao %>º</span></td>
+                                                <td><strong><%= recurso.titulo %></strong></td>
+                                                <td>
+                                                    <span class="badge bg-secondary">
+                                                        <%= recurso.etapa.length > 30 ? recurso.etapa.substring(0, 30) + '...' : recurso.etapa %>
+                                                    </span>
+                                                </td>
+                                                <td><span class="badge bg-info"><%= recurso.categoria %></span></td>
+                                                <td>
+                                                    <small class="text-muted">
+                                                        <%= new Date(recurso.data_criacao).toLocaleDateString('pt-BR') %>
+                                                    </small>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-success">Ativo</span>
+                                                </td>
+                                            </tr>
+                                            <% }); %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estatísticas Rápidas -->
+                    <div class="col-xl-4 col-lg-5">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Estatísticas Rápidas</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <h6 class="font-weight-bold text-dark mb-2">Distribuição de Recursos</h6>
+                                    <div class="mb-2">
+                                        <span class="text-primary">●</span> Educação Básica: 
+                                        <strong><%= stats.recursos_basico + stats.recursos_fundamental + stats.recursos_medio %></strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <span class="text-success">●</span> Ensino Técnico: 
+                                        <strong><%= stats.recursos_tecnico %></strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <span class="text-warning">●</span> Ensino Superior: 
+                                        <strong><%= stats.recursos_superior %></strong>
+                                    </div>
+                                </div>
+                                
+                                <hr>
+                                
+                                <div class="mb-3">
+                                    <h6 class="font-weight-bold text-dark mb-2">Status do Sistema</h6>
+                                    <div class="mb-2">
+                                        <i class="bi bi-check-circle-fill text-success me-1"></i>
+                                        Sistema Operacional: <strong>Normal</strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <i class="bi bi-database-fill text-info me-1"></i>
+                                        Banco de Dados: <strong>Conectado</strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <i class="bi bi-shield-check text-primary me-1"></i>
+                                        Segurança: <strong>Ativa</strong>
+                                    </div>
+                                </div>
+
+                                <hr>
+
+                                <div>
+                                    <h6 class="font-weight-bold text-dark mb-2">Atividade Recente</h6>
+                                    <% if (tabelas.logsRecentes && tabelas.logsRecentes.length > 0) { %>
+                                        <% tabelas.logsRecentes.slice(0, 3).forEach(log => { %>
+                                        <div class="mb-2">
+                                            <small class="text-muted d-block">
+                                                <i class="bi bi-clock me-1"></i>
+                                                <%= new Date(log.data_log).toLocaleDateString('pt-BR') %>
+                                            </small>
+                                            <small class="d-block text-truncate" style="max-width: 200px;">
+                                                <%= log.acao %>
+                                            </small>
+                                        </div>
+                                        <% }); %>
+                                    <% } else { %>
+                                        <div class="text-center text-muted py-3">
+                                            <i class="bi bi-info-circle me-1"></i>
+                                            Nenhuma atividade recente
+                                        </div>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resumo Executivo -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Resumo Executivo</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="font-weight-bold text-dark mb-3">
+                                    <i class="bi bi-graph-up-arrow text-success me-2"></i>Pontos Fortes
+                                </h6>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                        <strong><%= stats.recursos_ativos %> recursos educacionais</strong> disponíveis
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                        <strong><%= stats.total_usuarios %> usuários cadastrados</strong> na plataforma
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                        Taxa de crescimento de <strong><%= stats.taxa_crescimento %>%</strong> no período
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                        <strong><%= stats.admins_ativos %> administradores</strong> ativos
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="font-weight-bold text-dark mb-3">
+                                    <i class="bi bi-lightbulb text-warning me-2"></i>Oportunidades
+                                </h6>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <i class="bi bi-arrow-up-circle-fill text-warning me-2"></i>
+                                        Expandir recursos para <strong>Educação Infantil</strong>
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="bi bi-arrow-up-circle-fill text-warning me-2"></i>
+                                        Aumentar engajamento em <strong>regiões específicas</strong>
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="bi bi-arrow-up-circle-fill text-warning me-2"></i>
+                                        Desenvolver mais recursos para <strong>Ensino Técnico</strong>
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="bi bi-arrow-up-circle-fill text-warning me-2"></i>
+                                        Implementar sistema de <strong>avaliações e feedback</strong>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 p-3 bg-light rounded">
+                            <h6 class="font-weight-bold text-dark mb-2">Recomendações</h6>
+                            <p class="mb-0 text-muted">
+                                Com base na análise dos dados, recomenda-se focar na expansão do catálogo de recursos 
+                                para o Ensino Técnico e Superior, além de implementar campanhas de engajamento para 
+                                aumentar a taxa de crescimento de usuários.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4 no-print">
+                    <button class="btn btn-primary me-2" onclick="imprimirRelatorio()">
+                        <i class="bi bi-printer me-1"></i> Imprimir Relatório
+                    </button>
+                    <a href="/admin/dashboard" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i> Voltar ao Dashboard
+                    </a>
+                </div>
+
+                <!-- Rodapé de Impressão -->
+                <div class="print-only text-center mt-4">
+                    <hr>
+                    <p class="text-muted small">
+                        Relatório gerado automaticamente pelo Sistema E-DUCA | 
+                        Página <span class="pageNumber"></span> de <span class="totalPages"></span>
+                    </p>
                 </div>
             </div>
         </div>
     </div>
 
     <%- include('../partials/footer') %>
+
+    <script>
+        // Dados dos gráficos do servidor
+        const dadosGraficos = <%- JSON.stringify(graficos) %>;
+        const stats = <%- JSON.stringify(stats) %>;
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar data de geração
+            document.getElementById('dataGeracao').textContent = new Date().toLocaleString('pt-BR');
+            
+            // Inicializar gráficos
+            inicializarGraficos();
+            
+            // Configurar comportamento dos filtros
+            configurarFiltros();
+        });
+
+        function configurarFiltros() {
+            // Comportamento específico dos filtros pode ser adicionado aqui
+        }
+
+        function inicializarGraficos() {
+            // Gráfico de usuários por etapa
+            new Chart(document.getElementById('usuariosEtapaChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: dadosGraficos.usuariosPorEtapa.labels,
+                    datasets: [{
+                        data: dadosGraficos.usuariosPorEtapa.data,
+                        backgroundColor: [
+                            'rgba(78, 115, 223, 0.8)',
+                            'rgba(28, 200, 138, 0.8)',
+                            'rgba(246, 194, 62, 0.8)',
+                            'rgba(231, 74, 59, 0.8)',
+                            'rgba(142, 68, 173, 0.8)',
+                            'rgba(121, 85, 72, 0.8)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Gráfico de recursos por tipo
+            new Chart(document.getElementById('recursosTipoChart'), {
+                type: 'pie',
+                data: {
+                    labels: dadosGraficos.recursosPorTipo.labels,
+                    datasets: [{
+                        data: dadosGraficos.recursosPorTipo.data,
+                        backgroundColor: [
+                            'rgba(78, 115, 223, 0.8)',
+                            'rgba(28, 200, 138, 0.8)',
+                            'rgba(246, 194, 62, 0.8)',
+                            'rgba(231, 74, 59, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Gráfico de usuários por estado
+            new Chart(document.getElementById('usuariosEstadoChart'), {
+                type: 'bar',
+                data: {
+                    labels: dadosGraficos.usuariosPorEstado.labels,
+                    datasets: [{
+                        label: 'Usuários',
+                        data: dadosGraficos.usuariosPorEstado.data,
+                        backgroundColor: 'rgba(78, 115, 223, 0.8)',
+                        borderColor: 'rgba(78, 115, 223, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Gráfico de crescimento temporal
+            if (dadosGraficos.crescimentoTemporal.labels.length > 0) {
+                new Chart(document.getElementById('crescimentoChart'), {
+                    type: 'line',
+                    data: {
+                        labels: dadosGraficos.crescimentoTemporal.labels.map(data => 
+                            new Date(data).toLocaleDateString('pt-BR')
+                        ),
+                        datasets: [{
+                            label: 'Novos Usuários',
+                            data: dadosGraficos.crescimentoTemporal.data,
+                            backgroundColor: 'rgba(28, 200, 138, 0.1)',
+                            borderColor: 'rgba(28, 200, 138, 1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    precision: 0
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                document.getElementById('crescimentoChart').parentElement.innerHTML = `
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-graph-up display-4 d-block mb-2"></i>
+                        <p>Não há dados de crescimento para o período selecionado</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Funções de exportação
+        function exportToPDF() {
+            alert('Funcionalidade de exportação PDF será implementada em breve');
+            // Implementar geração de PDF com jsPDF
+        }
+
+        function exportToCSV() {
+            alert('Funcionalidade de exportação CSV será implementada em breve');
+            // Implementar geração de CSV
+        }
+
+        function exportToExcel() {
+            alert('Funcionalidade de exportação Excel será implementada em breve');
+            // Implementar geração de Excel
+        }
+
+        function imprimirRelatorio() {
+            // Atualizar números de página antes de imprimir
+            atualizarNumerosPagina();
+            window.print();
+        }
+
+        function atualizarNumerosPagina() {
+            // Esta função seria usada em conjunto com CSS para números de página
+            const pageNumbers = document.querySelectorAll('.pageNumber');
+            const totalPages = document.querySelectorAll('.totalPages');
+            
+            pageNumbers.forEach(el => el.textContent = '1');
+            totalPages.forEach(el => el.textContent = '1');
+        }
+
+        function refreshData() {
+            window.location.reload();
+        }
+
+        // Configurar números de página na impressão
+        window.addEventListener('beforeprint', atualizarNumerosPagina);
+    </script>
 </body>
 </html>

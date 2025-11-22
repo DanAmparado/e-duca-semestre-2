@@ -1,4 +1,4 @@
-// backend/middleware/adminAuth.js
+// backend/middleware/adminAuth.js (VERSÃO ATUALIZADA)
 
 const adminAuth = (req, res, next) => {
     // 🚨 DEBUG: Verificar a sessão
@@ -14,32 +14,12 @@ const adminAuth = (req, res, next) => {
         return res.redirect('/auth/login?erro=Acesso restrito a usuários logados');
     }
 
-    // Verificar se é administrador
-    if (!req.session.user.is_admin) {
-        console.log('❌ User is not admin');
+    // ATUALIZADO: Verificar se é administrador (qualquer nível exceto 'usuario')
+    const userNivel = req.session.user.nivel_acesso;
+    if (userNivel === 'usuario') {
+        console.log('❌ User is not admin (nivel_acesso = usuario)');
         return res.status(403).render('pages/erro', {
             erro: 'Acesso restrito a administradores',
-            user: req.session.user
-        });
-    }
-
-    // Verificar nível de acesso para rotas específicas (opcional)
-    const userNivel = req.session.user.nivel_acesso;
-    const path = req.path;
-
-    // Rotas exclusivas para superadmin
-    if (path.includes('/superadmin/') && userNivel !== 'superadmin') {
-        return res.status(403).render('pages/erro', {
-            erro: 'Acesso restrito a superadministradores',
-            user: req.session.user
-        });
-    }
-
-    // Rotas para moderador ou superior
-    if (path.includes('/moderacao/') && 
-        !['superadmin', 'moderador'].includes(userNivel)) {
-        return res.status(403).render('pages/erro', {
-            erro: 'Acesso restrito a moderadores',
             user: req.session.user
         });
     }
@@ -48,7 +28,7 @@ const adminAuth = (req, res, next) => {
     next();
 };
 
-// Middleware para verificar nível específico
+// Middleware para verificar nível específico (JÁ EXISTE - MANTIDO)
 adminAuth.requireNivel = (niveisPermitidos) => {
     return (req, res, next) => {
         if (!req.session.user) {
@@ -67,5 +47,10 @@ adminAuth.requireNivel = (niveisPermitidos) => {
         next();
     };
 };
+
+// NOVO: Middlewares pré-configurados para cada nível
+adminAuth.requireEditor = adminAuth.requireNivel(['editor', 'moderador', 'superadmin']);
+adminAuth.requireModerador = adminAuth.requireNivel(['moderador', 'superadmin']);
+adminAuth.requireSuperAdmin = adminAuth.requireNivel(['superadmin']);
 
 module.exports = adminAuth;

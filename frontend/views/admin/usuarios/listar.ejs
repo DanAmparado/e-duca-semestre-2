@@ -32,7 +32,7 @@
                                     <th>Localização</th>
                                     <th>Data Cadastro</th>
                                     <th>Nível Acesso</th>
-                                    <th>Ações</th>
+                                    <!-- ✅ CORREÇÃO: REMOVIDA A COLUNA "AÇÕES" -->
                                 </tr>
                             </thead>
                             <tbody>
@@ -55,42 +55,17 @@
                                         <small><%= usuario.data_cadastro.toLocaleDateString('pt-BR') %></small>
                                     </td>
                                     <td>
-                                        <% if (usuario.is_admin) { %>
-                                            <span class="badge bg-<%= 
-                                                usuario.nivel_acesso === 'superadmin' ? 'danger' : 
-                                                usuario.nivel_acesso === 'moderador' ? 'warning' : 'info' 
-                                            %>">
-                                                <%= usuario.nivel_acesso %>
-                                            </span>
-                                        <% } else { %>
-                                            <span class="badge bg-secondary">Usuário</span>
+                                        <span class="badge 
+                                            <%= usuario.nivel_acesso === 'superadmin' ? 'bg-danger' : 
+                                                usuario.nivel_acesso === 'moderador' ? 'bg-warning' : 
+                                                usuario.nivel_acesso === 'editor' ? 'bg-info' : 'bg-secondary' %>">
+                                            <%= usuario.nivel_acesso %>
+                                        </span>
+                                        <% if (!usuario.is_admin && usuario.nivel_acesso === 'usuario') { %>
+                                            <br><small class="text-muted">Usuário comum</small>
                                         <% } %>
                                     </td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm">
-                                            <% if (usuario.is_admin) { %>
-                                                <button class="btn btn-outline-primary" 
-                                                        onclick="alterarNivelAcesso(<%= usuario.id %>, '<%= usuario.nivel_acesso %>')"
-                                                        title="Alterar Nível">
-                                                    <i class="bi bi-shield"></i>
-                                                </button>
-                                            <% } else { %>
-                                                <button class="btn btn-outline-success" 
-                                                        onclick="tornarAdmin(<%= usuario.id %>)"
-                                                        title="Tornar Admin">
-                                                    <i class="bi bi-shield-plus"></i>
-                                                </button>
-                                            <% } %>
-                                            
-                                            <% if (user.nivel_acesso === 'superadmin' && usuario.id !== user.id) { %>
-                                                <button class="btn btn-outline-danger" 
-                                                        onclick="removerAdmin(<%= usuario.id %>)"
-                                                        title="Remover Admin">
-                                                    <i class="bi bi-shield-minus"></i>
-                                                </button>
-                                            <% } %>
-                                        </div>
-                                    </td>
+                                    <!-- ✅ CORREÇÃO: REMOVIDAS AS CÉLULAS DE AÇÕES -->
                                 </tr>
                                 <% }) %>
                             </tbody>
@@ -111,133 +86,21 @@
                     <% } %>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Change Level Modal -->
-    <div class="modal fade" id="nivelModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Alterar Nível de Acesso</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="nivelForm">
-                        <input type="hidden" id="usuarioId">
-                        <div class="mb-3">
-                            <label for="nivelAcesso" class="form-label">Nível de Acesso</label>
-                            <select class="form-select" id="nivelAcesso" required>
-                                <option value="editor">Editor</option>
-                                <option value="moderador">Moderador</option>
-                                <option value="superadmin">Super Admin</option>
-                            </select>
-                            <div class="form-text">
-                                <small>
-                                    <strong>Editor:</strong> Pode criar/editar recursos<br>
-                                    <strong>Moderador:</strong> Editor + pode moderar conteúdo<br>
-                                    <strong>Super Admin:</strong> Acesso total ao sistema
-                                </small>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" onclick="confirmarAlteracaoNivel()">Confirmar</button>
-                </div>
+            <!-- Informação sobre gerenciamento de permissões -->
+            <div class="alert alert-info mt-4">
+                <h6 class="alert-heading">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Gerenciamento de Permissões
+                </h6>
+                <p class="mb-0">
+                    Para alterar níveis de acesso dos usuários, utilize a página 
+                    <a href="/admin/permissoes" class="alert-link">Gerenciar Permissões</a> 
+                    disponível no menu administrativo avançado.
+                </p>
             </div>
         </div>
     </div>
-
-    <script>
-        function alterarNivelAcesso(usuarioId, nivelAtual) {
-            document.getElementById('usuarioId').value = usuarioId;
-            document.getElementById('nivelAcesso').value = nivelAtual;
-            new bootstrap.Modal(document.getElementById('nivelModal')).show();
-        }
-
-        function tornarAdmin(usuarioId) {
-            if (confirm('Deseja tornar este usuário um administrador?')) {
-                fetch(`/admin/usuarios/${usuarioId}/alterar-nivel`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nivel_acesso: 'editor' })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showAlert('Usuário tornou-se administrador!', 'success');
-                        setTimeout(() => location.reload(), 1500);
-                    } else {
-                        showAlert('Erro: ' + data.error, 'danger');
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro:', error);
-                    showAlert('Erro ao processar solicitação.', 'danger');
-                });
-            }
-        }
-
-        function removerAdmin(usuarioId) {
-            if (confirm('Deseja remover privilégios de administrador deste usuário?')) {
-                fetch(`/admin/usuarios/${usuarioId}/alterar-nivel`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nivel_acesso: 'usuario', is_admin: false })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showAlert('Privilégios de admin removidos!', 'success');
-                        setTimeout(() => location.reload(), 1500);
-                    } else {
-                        showAlert('Erro: ' + data.error, 'danger');
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro:', error);
-                    showAlert('Erro ao processar solicitação.', 'danger');
-                });
-            }
-        }
-
-        function confirmarAlteracaoNivel() {
-            const usuarioId = document.getElementById('usuarioId').value;
-            const nivelAcesso = document.getElementById('nivelAcesso').value;
-
-            fetch(`/admin/usuarios/${usuarioId}/alterar-nivel`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nivel_acesso: nivelAcesso, is_admin: true })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showAlert('Nível de acesso alterado com sucesso!', 'success');
-                    setTimeout(() => location.reload(), 1500);
-                } else {
-                    showAlert('Erro: ' + data.error, 'danger');
-                }
-            })
-            .catch(error => {
-                console.error('Erro:', error);
-                showAlert('Erro ao processar solicitação.', 'danger');
-            });
-        }
-
-        function showAlert(message, type) {
-            const alert = document.createElement('div');
-            alert.className = `alert alert-${type} alert-dismissible fade show`;
-            alert.innerHTML = `
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            document.querySelector('.flex-grow-1').insertBefore(alert, document.querySelector('.card'));
-            setTimeout(() => alert.remove(), 5000);
-        }
-    </script>
 
     <%- include('../../partials/footer') %>
 </body>

@@ -19,6 +19,8 @@
                 </a>
             </li>
             
+            <!-- 👥 USUÁRIOS - APENAS SUPERADMIN -->
+            <% if (user.nivel_acesso === 'superadmin') { %>
             <li class="nav-item">
                 <a class="nav-link <%= currentPage === 'usuarios' ? 'active' : '' %>" 
                    href="/admin/usuarios">
@@ -26,15 +28,13 @@
                     Usuários
                 </a>
             </li>
+            <% } %>
             
             <li class="nav-item">
                 <a class="nav-link <%= currentPage === 'recursos' ? 'active' : '' %>" 
                    href="/admin/recursos">
                     <i class="bi bi-book me-2"></i>
                     Recursos
-                    <% if (typeof recursosPendentesCount !== 'undefined' && recursosPendentesCount > 0) { %>
-                        <span class="badge bg-danger float-end"><%= recursosPendentesCount %></span>
-                    <% } %>
                 </a>
             </li>
             
@@ -54,16 +54,37 @@
                 </a>
             </li>
             
+            <!-- 🔧 FERRAMENTAS - Moderador+ -->
+            <% if (user.nivel_acesso === 'superadmin' || user.nivel_acesso === 'moderador') { %>
             <li class="nav-item">
                 <a class="nav-link <%= currentPage === 'logs' ? 'active' : '' %>" 
-                   href="/admin/sistema/logs">
+                href="/admin/sistema/logs">
                     <i class="bi bi-list-check me-2"></i>
                     Logs do Sistema
                 </a>
             </li>
+            <% } %>
+            
+            <!-- 🔐 SEÇÃO ADMINISTRATIVA AVANÇADA - APENAS SUPERADMIN -->
+            <% if (user.nivel_acesso === 'superadmin') { %>
+            <li class="nav-item mt-2">
+                <div class="sidebar-section-label text-muted small px-3 mb-1">
+                    <i class="bi bi-shield-check me-1"></i>
+                    ADMIN AVANÇADO
+                </div>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link <%= currentPage === 'permissoes' ? 'active' : '' %>" 
+                   href="/admin/permissoes">
+                    <i class="bi bi-key me-2"></i>
+                    Gerenciar Permissões
+                </a>
+            </li>
+            <% } %>
         </ul>
 
-        <!-- User Info & Actions -->
+        <!-- User Info -->
         <div class="sidebar-footer mt-auto p-3">
             <div class="dropdown">
                 <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" 
@@ -74,7 +95,14 @@
                 <ul class="dropdown-menu dropdown-menu-dark">
                     <li>
                         <span class="dropdown-item-text">
-                            <small>Nível: <span class="badge bg-info"><%= user.nivel_acesso %></span></small>
+                            <small>Nível: 
+                                <span class="badge 
+                                    <%= user.nivel_acesso === 'superadmin' ? 'bg-danger' : 
+                                        user.nivel_acesso === 'moderador' ? 'bg-warning' : 
+                                        user.nivel_acesso === 'editor' ? 'bg-info' : 'bg-secondary' %>">
+                                    <%= user.nivel_acesso %>
+                                </span>
+                            </small>
                         </span>
                     </li>
                     <li><hr class="dropdown-divider"></li>
@@ -87,60 +115,3 @@
         </div>
     </div>
 </div>
-
-<style>
-.sidebar {
-    width: 250px;
-    min-height: 100vh;
-    height: 100vh; /* ✅ Garante altura total */
-    position: fixed; /* ✅ Fixa a sidebar */
-    left: 0;
-    top: 0;
-    overflow-y: auto; /* ✅ Permite scroll se necessário */
-    z-index: 1000; /* ✅ Garante que fique acima do conteúdo */
-}
-
-.sidebar-content {
-    display: flex;
-    flex-direction: column;
-    height: 100vh; /* ✅ Ocupa 100% da altura da viewport */
-    position: fixed; /* ✅ Mantém fixo durante o scroll */
-    width: 250px;
-}
-
-/* ✅ Garante que o conteúdo principal não sobreponha a sidebar */
-.main-content {
-    margin-left: 250px; /* ✅ mesma largura da sidebar */
-    width: calc(100% - 250px);
-    min-height: 100vh;
-}
-
-.sidebar .nav-link {
-    color: #adb5bd;
-    padding: 0.75rem 1rem;
-    border-left: 3px solid transparent;
-    transition: all 0.3s;
-}
-
-.sidebar .nav-link:hover {
-    color: #fff;
-    background-color: #343a40;
-    border-left-color: #007bff;
-}
-
-.sidebar .nav-link.active {
-    color: #fff;
-    background-color: #007bff;
-    border-left-color: #0056b3;
-}
-
-.sidebar .nav-link i {
-    width: 20px;
-    text-align: center;
-}
-
-body {
-    margin: 0;
-    padding: 0;
-}
-</style>

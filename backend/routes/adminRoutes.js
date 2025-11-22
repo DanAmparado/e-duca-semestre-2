@@ -1,40 +1,43 @@
 const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
-const adminAuth = require('../middleware/adminAuth');
+const adminAuth = require('../middleware/adminAuth'); // Já atualizado com requireEditor, etc.
+const auth = require('../middleware/auth'); // Middleware básico de autenticação
 const db = require('../config/database');
 
-// 🔐 APLICAR MIDDLEWARE DE ADMIN BÁSICO EM TODAS AS ROTAS
-router.use(adminAuth);
+// 🔐 APLICAR MIDDLEWARE DE AUTENTICAÇÃO BÁSICA EM TODAS AS ROTAS
+router.use(auth);
 
-// 📊 DASHBOARD E RELATÓRIOS
-router.get('/', adminController.dashboard);
-router.get('/dashboard', adminController.dashboard);
-router.get('/relatorios', adminController.relatorios);
+// 📊 DASHBOARD E RELATÓRIOS - Todos os admins (editor+)
+router.get('/', adminAuth.requireEditor, adminController.dashboard);
+router.get('/dashboard', adminAuth.requireEditor, adminController.dashboard);
+router.get('/relatorios', adminAuth.requireEditor, adminController.relatorios);
 
-// 👥 GERENCIAMENTO DE USUÁRIOS
-router.get('/usuarios', adminController.listarUsuarios);
-router.post('/usuarios/:id/alterar-nivel', adminController.alterarNivelAcesso);
+// 👥 GERENCIAMENTO DE USUÁRIOS - Apenas superadmin
+router.get('/usuarios', adminAuth.requireSuperAdmin, adminController.listarUsuarios);
+router.post('/usuarios/:id/alterar-nivel', adminAuth.requireSuperAdmin, adminController.alterarNivelAcesso);
 
 // 📚 GERENCIAMENTO DE RECURSOS
-router.get('/recursos', adminController.listarRecursos);
-router.get('/recursos/criar', adminController.formularioCriarRecurso);
-router.post('/recursos/criar', adminController.criarRecurso);
-router.get('/recursos/editar/:id', adminController.formularioEditarRecurso);
-router.post('/recursos/editar/:id', adminController.atualizarRecurso);
-router.delete('/recursos/excluir/:id', adminController.excluirRecurso);
-router.post('/recursos/restaurar/:id', adminController.restaurarRecurso);
+router.get('/recursos', adminAuth.requireEditor, adminController.listarRecursos);
+router.get('/recursos/criar', adminAuth.requireEditor, adminController.formularioCriarRecurso);
+router.post('/recursos/criar', adminAuth.requireEditor, adminController.criarRecurso);
+router.get('/recursos/editar/:id', adminAuth.requireEditor, adminController.formularioEditarRecurso);
+router.post('/recursos/editar/:id', adminAuth.requireEditor, adminController.atualizarRecurso);
 
-// 📰 GERENCIAMENTO DE NOTÍCIAS (FUTURO)
-router.get('/noticias', (req, res) => {
+// 🗑️ EXCLUSÃO/RESTAURAÇÃO - Apenas moderador+
+router.delete('/recursos/excluir/:id', adminAuth.requireModerador, adminController.excluirRecurso);
+router.post('/recursos/restaurar/:id', adminAuth.requireModerador, adminController.restaurarRecurso);
+
+// 📰 GERENCIAMENTO DE NOTÍCIAS (FUTURO) - Editor+
+router.get('/noticias', adminAuth.requireEditor, (req, res) => {
     res.render('admin/noticias/listar', {
         user: req.session.user,
         noticias: [] // Placeholder para implementação futura
     });
 });
 
-// 🔧 FERRAMENTAS DO SISTEMA
-router.get('/sistema/logs', (req, res) => {
+// 🔧 LOGS DO SISTEMA - Apenas Moderador e Superadmin
+router.get('/sistema/logs', adminAuth.requireModerador, (req, res) => {
     const sql = 'SELECT * FROM sistema_logs ORDER BY data_log DESC LIMIT 100';
     
     db.query(sql, (err, logs) => {
@@ -53,8 +56,8 @@ router.get('/sistema/logs', (req, res) => {
     });
 });
 
-// 📊 API ENDPOINTS PARA DASHBOARD (AJAX)
-router.get('/api/dashboard/stats', (req, res) => {
+// 📊 API ENDPOINTS PARA DASHBOARD (AJAX) - Editor+
+router.get('/api/dashboard/stats', adminAuth.requireEditor, (req, res) => {
     const statsQueries = [
         'SELECT COUNT(*) as total FROM usuarios',
         'SELECT COUNT(*) as total FROM recursos WHERE ativo = 1',
@@ -103,7 +106,7 @@ router.get('/api/dashboard/stats', (req, res) => {
     });
 });
 
-router.get('/api/recursos/pendentes', (req, res) => {
+router.get('/api/recursos/pendentes', adminAuth.requireEditor, (req, res) => {
     const sql = `
         SELECT id, titulo, etapa, data_criacao 
         FROM recursos 
@@ -121,11 +124,15 @@ router.get('/api/recursos/pendentes', (req, res) => {
     });
 });
 
-// 🆕 API RELATÓRIOS (AJAX) - ADICIONANDO A ROTA QUE ESTAVA FALTANDO
-router.get('/api/relatorios', adminController.apiRelatorios);
+// 🆕 API RELATÓRIOS (AJAX) - Editor+
+router.get('/api/relatorios', adminAuth.requireEditor, adminController.apiRelatorios);
 
-// 🆕 ROTA DE TESTE PARA DEBUG (OPCIONAL)
-router.get('/teste-tudo', (req, res) => {
+// 🆕 ROTA DE GERENCIAMENTO DE PERMISSÕES - Apenas superadmin
+router.get('/permissoes', adminAuth.requireSuperAdmin, adminController.listarPermissoes);
+router.post('/permissoes/atualizar/:id', adminAuth.requireSuperAdmin, adminController.atualizarPermissoes);
+
+// 🆕 ROTA DE TESTE PARA DEBUG (OPCIONAL) - Editor+
+router.get('/teste-tudo', adminAuth.requireEditor, (req, res) => {
     res.json({
         message: '✅ Admin routes working perfectly!',
         user: req.session.user,

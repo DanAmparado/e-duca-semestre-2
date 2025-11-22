@@ -111,52 +111,52 @@ const adminController = {
         });
     },
 
-alterarNivelAcesso: (req, res) => {
-    const { id } = req.params;
-    const { nivel_acesso } = req.body;
+    alterarNivelAcesso: (req, res) => {
+        const { id } = req.params;
+        const { nivel_acesso } = req.body;
 
-    // Validar nível de acesso
-    const niveisPermitidos = ['editor', 'moderador', 'superadmin'];
-    if (!niveisPermitidos.includes(nivel_acesso)) {
-        return res.status(400).json({ 
-            success: false, 
-            error: 'Nível de acesso inválido' 
-        });
-    }
-
-    // ✅ CORREÇÃO: Definir is_admin baseado no nível de acesso
-    const isAdmin = nivel_acesso === 'superadmin' ? 1 : 0;
-
-    const sql = 'UPDATE usuarios SET nivel_acesso = ?, is_admin = ? WHERE id = ?';
-
-    db.query(sql, [nivel_acesso, isAdmin, id], (err, result) => {
-        if (err) {
-            console.error('Erro ao alterar nível de acesso:', err);
-            return res.status(500).json({ 
+        // Validar nível de acesso
+        const niveisPermitidos = ['editor', 'moderador', 'superadmin'];
+        if (!niveisPermitidos.includes(nivel_acesso)) {
+            return res.status(400).json({ 
                 success: false, 
-                error: 'Erro interno do servidor' 
+                error: 'Nível de acesso inválido' 
             });
         }
 
-        // Log da ação
-        const logSql = `
-            INSERT INTO sistema_logs (tipo_log, usuario_id, acao, descricao, ip_address)
-            VALUES ('admin', ?, 'alterar_nivel_acesso', ?, ?)
-        `;
-        db.query(logSql, [
-            req.session.user.id,
-            `Alterou nível de acesso do usuário ${id} para ${nivel_acesso} (is_admin: ${isAdmin})`,
-            req.ip
-        ]);
+        // ✅ CORREÇÃO: Definir is_admin baseado no nível de acesso
+        const isAdmin = nivel_acesso !== 'usuario'; // Qualquer nível exceto 'usuario' é admin
 
-        res.json({ 
-            success: true, 
-            message: 'Nível de acesso alterado com sucesso',
-            new_level: nivel_acesso,
-            is_admin: isAdmin
+        const sql = 'UPDATE usuarios SET nivel_acesso = ?, is_admin = ? WHERE id = ?';
+
+        db.query(sql, [nivel_acesso, isAdmin, id], (err, result) => {
+            if (err) {
+                console.error('Erro ao alterar nível de acesso:', err);
+                return res.status(500).json({ 
+                    success: false, 
+                    error: 'Erro interno do servidor' 
+                });
+            }
+
+            // Log da ação
+            const logSql = `
+                INSERT INTO sistema_logs (tipo_log, usuario_id, acao, descricao, ip_address)
+                VALUES ('admin', ?, 'alterar_nivel_acesso', ?, ?)
+            `;
+            db.query(logSql, [
+                req.session.user.id,
+                `Alterou nível de acesso do usuário ${id} para ${nivel_acesso} (is_admin: ${isAdmin})`,
+                req.ip
+            ]);
+
+            res.json({ 
+                success: true, 
+                message: 'Nível de acesso alterado com sucesso',
+                new_level: nivel_acesso,
+                is_admin: isAdmin
+            });
         });
-    });
-},
+    },
 
     // 📚 GERENCIAMENTO DE RECURSOS
     listarRecursos: (req, res) => {
@@ -727,7 +727,126 @@ alterarNivelAcesso: (req, res) => {
             console.error('Erro na API de relatórios:', error);
             res.status(500).json({ error: 'Erro interno do servidor' });
         }
+    },
+
+    // 👥 GERENCIAMENTO DE PERMISSÕES - APENAS SUPERADMIN
+    listarPermissoes: (req, res) => {
+        try {
+            const sql = `
+                SELECT id, email, nivel_acesso, data_cadastro 
+                FROM usuarios 
+                ORDER BY data_cadastro DESC
+            `;
+            
+            db.query(sql, (err, usuarios) => {
+                if (err) {
+                    console.error('Erro ao buscar usuários:', err);
+                    return res.status(500).render('pages/erro', {
+                        erro: 'Erro interno do servidor',
+                        user: req.session.user
+                    });
+                }
+
+                res.render('admin/permissoes/listar', {
+                    user: req.session.user,
+                    usuarios: usuarios,
+                    success: req.flash('success') || [],
+                    error: req.flash('error') || []
+                });
+            });
+        } catch (error) {
+            console.error('Erro em listarPermissoes:', error);
+            res.status(500).render('pages/erro', {
+                erro: 'Erro interno do servidor',
+                user: req.session.user
+            });
+        }
+    },
+
+    atualizarPermissoes: (req, res) => {
+        // ✅ Obter conexão do pool
+        db.getConnection((err, connection) => {
+            if (err) {
+                console.error('Erro ao obter conexão:', err);
+                req.flash('error', 'Erro de conexão com o banco.');
+                return res.redirect('/admin/permissoes');
+            }
+
+            try {
+                const { id } = req.params;
+                const { nivel_acesso } = req.body;
+
+                // Validar nível de acesso
+                const niveisValidos = ['superadmin', 'moderador', 'editor', 'usuario'];
+                if (!niveisValidos.includes(nivel_acesso)) {
+                    connection.release();
+                    req.flash('error', 'Nível de acesso inválido.');
+                    return res.redirect('/admin/permissoes');
+                }
+
+                // Buscar usuário atual para log
+                const usuarioSql = 'SELECT email, nivel_acesso FROM usuarios WHERE id = ?';
+                
+                connection.query(usuarioSql, [id], (err, resultados) => {
+                    if (err || resultados.length === 0) {
+                        connection.release();
+                        req.flash('error', 'Usuário não encontrado.');
+                        return res.redirect('/admin/permissoes');
+                    }
+
+                    const usuario = resultados[0];
+                    const nivelAnterior = usuario.nivel_acesso;
+
+                    // ✅ CORREÇÃO: Atualizar tanto nivel_acesso quanto is_admin
+                    const isAdmin = nivel_acesso !== 'usuario';
+                    const updateSql = 'UPDATE usuarios SET nivel_acesso = ?, is_admin = ? WHERE id = ?';
+                    
+                    connection.query(updateSql, [nivel_acesso, isAdmin, id], (err, result) => {
+                        if (err) {
+                            connection.release();
+                            console.error('Erro ao atualizar permissões:', err);
+                            req.flash('error', 'Erro ao atualizar permissões.');
+                            return res.redirect('/admin/permissoes');
+                        }
+
+                        // Registrar no log do sistema
+                        const logSql = `
+                            INSERT INTO sistema_logs 
+                            (tipo_log, usuario_id, acao, descricao, ip_address) 
+                            VALUES (?, ?, ?, ?, ?)
+                        `;
+                        const descricao = `Alterou permissões de ${usuario.email}: ${nivelAnterior} → ${nivel_acesso} (is_admin: ${isAdmin})`;
+                        
+                        connection.query(logSql, [
+                            'permissao',
+                            req.session.user.id,
+                            'Atualização de Permissões',
+                            descricao,
+                            req.ip
+                        ], (logErr) => {
+                            // ✅ SEMPRE liberar a conexão
+                            connection.release();
+                            
+                            if (logErr) {
+                                console.error('Erro ao registrar log:', logErr);
+                            }
+
+                            req.flash('success', `Permissões de ${usuario.email} atualizadas com sucesso!`);
+                            res.redirect('/admin/permissoes');
+                        });
+                    });
+                });
+
+            } catch (error) {
+                // ✅ SEMPRE liberar a conexão em caso de erro
+                if (connection) connection.release();
+                console.error('Erro em atualizarPermissoes:', error);
+                req.flash('error', 'Erro interno do servidor.');
+                res.redirect('/admin/permissoes');
+            }
+        });
     }
+
 };
 
 module.exports = adminController;

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <%- include('../../partials/head') %>
+    <title>Gerenciar Permissões - E-DUCA</title>
+    <style>
+        .permission-badge {
+            font-size: 0.8rem;
+            padding: 0.4em 0.6em;
+        }
+        .form-select-sm {
+            width: 140px;
+        }
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+        <%- include('../partials/admin-sidebar', { currentPage: 'permissoes' }) %>
+        
+        <div class="main-content p-4">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 text-gray-800">Gerenciar Permissões</h1>
+                <div class="btn-toolbar">
+                    <span class="badge bg-secondary fs-6">
+                        <%= usuarios.length %> usuários
+                    </span>
+                </div>
+            </div>
+
+            <!-- Alertas -->
+            <% if (success && success.length > 0) { %>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <%= success %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            <% } %>
+
+            <% if (error && error.length > 0) { %>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <%= error %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            <% } %>
+
+            <!-- Tabela de Permissões -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="bi bi-shield-lock me-2"></i>
+                        Lista de Usuários e Permissões
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Email</th>
+                                    <th>Nível de Acesso</th>
+                                    <th>Data de Cadastro</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% usuarios.forEach(usuario => { %>
+                                <tr>
+                                    <td>
+                                        <strong><%= usuario.email %></strong>
+                                        <% if (usuario.id === user.id) { %>
+                                            <span class="badge bg-info ms-2">Você</span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <span class="badge permission-badge
+                                            <%= usuario.nivel_acesso === 'superadmin' ? 'bg-danger' : 
+                                                usuario.nivel_acesso === 'moderador' ? 'bg-warning' : 
+                                                usuario.nivel_acesso === 'editor' ? 'bg-info' : 'bg-secondary' %>">
+                                            <%= usuario.nivel_acesso %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            <%= new Date(usuario.data_cadastro).toLocaleDateString('pt-BR') %>
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <form action="/admin/permissoes/atualizar/<%= usuario.id %>" method="POST" class="d-inline">
+                                            <div class="input-group input-group-sm" style="width: 280px;">
+                                                <select name="nivel_acesso" class="form-select form-select-sm" required>
+                                                    <option value="usuario" <%= usuario.nivel_acesso === 'usuario' ? 'selected' : '' %>>Usuário</option>
+                                                    <option value="editor" <%= usuario.nivel_acesso === 'editor' ? 'selected' : '' %>>Editor</option>
+                                                    <option value="moderador" <%= usuario.nivel_acesso === 'moderador' ? 'selected' : '' %>>Moderador</option>
+                                                    <option value="superadmin" <%= usuario.nivel_acesso === 'superadmin' ? 'selected' : '' %>>Super Admin</option>
+                                                </select>
+                                                <button type="submit" class="btn btn-primary btn-sm" 
+                                                        onclick="return confirm('Tem certeza que deseja alterar as permissões de <%= usuario.email %>?')">
+                                                    Atualizar
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Legenda -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Legenda de Níveis de Acesso
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <span class="badge bg-danger permission-badge">superadmin</span>
+                            <p class="small mt-1 mb-0">Acesso total ao sistema</p>
+                            <ul class="small text-muted mt-1">
+                                <li>Gerenciar usuários</li>
+                                <li>Gerenciar permissões</li>
+                                <li>Acessar logs e backup</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <span class="badge bg-warning permission-badge">moderador</span>
+                            <p class="small mt-1 mb-0">Pode moderar conteúdo</p>
+                            <ul class="small text-muted mt-1">
+                                <li>Excluir/restaurar recursos</li>
+                                <li>Criar/editar recursos</li>
+                                <li>Acessar dashboard</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <span class="badge bg-info permission-badge">editor</span>
+                            <p class="small mt-1 mb-0">Pode editar conteúdo</p>
+                            <ul class="small text-muted mt-1">
+                                <li>Criar/editar recursos</li>
+                                <li>Acessar dashboard</li>
+                                <li>Listar recursos</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <span class="badge bg-secondary permission-badge">usuario</span>
+                            <p class="small mt-1 mb-0">Acesso básico</p>
+                            <ul class="small text-muted mt-1">
+                                <li>Visualizar recursos</li>
+                                <li>Receber recomendações</li>
+                                <li>Gerenciar perfil</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../../partials/footer') %>
+</body>
+</html>

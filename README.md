@@ -1,15 +1,15 @@
 # E-DUCA
 Sistema de Democratização do Acesso à Educação
 
-## 🚀 Tecnologias
+## Tecnologias
 - Node.js + Express
 - MySQL
 - EJS + Bootstrap
 
-## 👥 Equipe
+## Equipe
 - Daniel
 - César  
 - Victor
 
-## 📅 Entrega
+## Entrega
 24 de Novembro de 2025

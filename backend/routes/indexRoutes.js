@@ -1,6 +1,7 @@
 // backend/routes/indexRoutes.js
 const express = require('express');
 const router = express.Router();
+const recursosController = require('../controllers/recursosController');
 
 // Rotas Públicas
 router.get('/', (req, res) => {

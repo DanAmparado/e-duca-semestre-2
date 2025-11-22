@@ -1,8 +1,8 @@
-
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
 const db = require('./config/database');
+const flash = require('connect-flash');
 
 const app = express();
 
@@ -10,18 +10,29 @@ const app = express();
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '../frontend/views'));
 app.use(express.static(path.join(__dirname, '../frontend/public')));
-app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // 🔐 SESSÕES
 app.use(session({
     secret: 'educa-secret',
     resave: false,
     saveUninitialized: false,
-    cookie: {
+    cookie: { 
+        secure: false, // ✅ Para desenvolvimento (false)
+        httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000 // 24 horas
     }
 }));
+
+app.use(flash());
+
+// Middleware para passar flash messages para todas as views
+app.use((req, res, next) => {
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
+    next();
+});
 
 // 🏠 MIDDLEWARE PARA VARIÁVEIS GLOBAIS
 app.use((req, res, next) => {

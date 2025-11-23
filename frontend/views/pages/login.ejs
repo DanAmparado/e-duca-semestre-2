@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <%- include('../partials/head') %>
-    <title>Login - Educação Acessível</title>
+    <%- include('../partials/head', { title: 'Login - E-DUCA' }) %>
 </head>
 <body>
-    <%- include('../partials/navbar') %>
+    <%- include('../partials/navbar', { user: user }) %>
     
     <main class="container mt-5 pt-5">
         <div class="row justify-content-center">
@@ -18,7 +17,7 @@
                             <div class="alert alert-danger"><%= erro %></div>
                         <% } %>
                         
-                        <% if (typeof sucesso !== 'undefined') { %>  <!-- ADICIONAR ISSO -->
+                        <% if (typeof sucesso !== 'undefined') { %>
                             <div class="alert alert-success"><%= sucesso %></div>
                         <% } %>
 

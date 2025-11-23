@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <%- include('../partials/head') %>
-    <title>Sobre Nós - E-DUCA</title>
+    <%- include('../partials/head', { title: 'Sobre Nós - E-DUCA' }) %>
     <style>
         .team-member {
             transition: transform 0.3s ease;
@@ -15,7 +14,6 @@
 <body>
     <%- include('../partials/navbar', { user: user }) %>
 
-    <!-- Conteúdo Principal -->
     <main class="container mt-5 pt-5">
         <article>
             <header class="mb-5 text-center">
@@ -24,11 +22,12 @@
             </header>
 
             <div class="row g-4">
-                <!-- Nossa Missão -->
                 <div class="col-12">
                     <div class="card shadow-sm border-0">
                         <div class="card-body p-4">
-                            <h2 class="h3 mb-4 text-primary">🎯 Nossa Missão</h2>
+                            <h2 class="h3 mb-4 text-primary">
+                                <i class="bi bi-bullseye me-2"></i>Nossa Missão
+                            </h2>
                             <div class="row">
                                 <div class="col-lg-8">
                                     <p class="mb-3">
@@ -53,13 +52,13 @@
                     </div>
                 </div>
 
-                <!-- Nossa Equipe -->
                 <div class="col-12">
                     <div class="card shadow-sm border-0">
                         <div class="card-body p-4">
-                            <h2 class="h3 mb-4 text-primary">👥 Nossa Equipe</h2>
+                            <h2 class="h3 mb-4 text-primary">
+                                <i class="bi bi-people me-2"></i>Nossa Equipe
+                            </h2>
                             <div class="row g-4">
-                                <!-- Time de Design -->
                                 <div class="col-md-4">
                                     <div class="card h-100 team-member border-0">
                                         <div class="card-body text-center">
@@ -71,7 +70,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Time de Desenvolvimento -->
                                 <div class="col-md-4">
                                     <div class="card h-100 team-member border-0">
                                         <div class="card-body text-center">
@@ -83,7 +81,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Time de Pesquisa -->
                                 <div class="col-md-4">
                                     <div class="card h-100 team-member border-0">
                                         <div class="card-body text-center">
@@ -99,7 +96,6 @@
                     </div>
                 </div>
 
-                <!-- Estatísticas (Opcional) -->
                 <div class="col-12">
                     <div class="card shadow-sm border-0 bg-primary text-white">
                         <div class="card-body p-4">

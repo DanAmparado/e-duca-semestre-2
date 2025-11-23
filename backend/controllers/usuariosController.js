@@ -1,7 +1,6 @@
 const db = require('../config/database');
 
 const usuariosController = {
-    // Perfil do usuário
     perfil: (req, res) => {
         res.render('pages/perfil', {
             user: req.session.user,
@@ -9,7 +8,14 @@ const usuariosController = {
         });
     },
 
-    // Atualizar perfil
+    // 🆕 ADICIONAR: Formulário de edição
+    formularioEditarPerfil: (req, res) => {
+        res.render('pages/perfil/editar', {
+            user: req.session.user,
+            title: 'Editar Perfil - E-DUCA'
+        });
+    },
+
     atualizarPerfil: (req, res) => {
         const { cidade, estado, etapa_preferida } = req.body;
         const userId = req.session.user.id;
@@ -19,10 +25,8 @@ const usuariosController = {
         db.query(sql, [cidade, estado, etapa_preferida, userId], (err, result) => {
             if (err) {
                 console.error('Erro ao atualizar perfil:', err);
-                return res.render('pages/perfil', {
-                    user: req.session.user,
-                    erro: 'Erro ao atualizar perfil'
-                });
+                // 🎯 CORREÇÃO: Redirecionar para o formulário com erro
+                return res.redirect('/perfil/editar?erro=Erro ao atualizar perfil');
             }
 
             // Atualizar sessão
@@ -30,18 +34,14 @@ const usuariosController = {
             req.session.user.estado = estado;
             req.session.user.etapa_preferida = etapa_preferida;
 
-            res.render('pages/perfil', {
-                user: req.session.user,
-                sucesso: 'Perfil atualizado com sucesso!'
-            });
+            // 🎯 CORREÇÃO: Redirecionar para o perfil com sucesso
+            res.redirect('/perfil?sucesso=Perfil atualizado com sucesso!');
         });
     },
 
-    // Página de recomendações
     recomendacoes: (req, res) => {
         const user = req.session.user;
         
-        // Lógica de recomendação baseada no perfil do usuário
         let etapaFiltro = user.etapa_preferida || 'Superior';
         
         const sql = `
@@ -61,7 +61,6 @@ const usuariosController = {
                 });
             }
 
-            // ✅ CORREÇÃO: Caminho correto da view
             res.render('pages/recomendacoes/para-voce', {
                 user: user,
                 recursos: recursos,

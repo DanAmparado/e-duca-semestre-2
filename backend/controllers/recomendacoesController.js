@@ -8,36 +8,51 @@ const recomendacoesController = {
 
         const user = req.session.user;
         
-        // Lógica de recomendação baseada nas RN013-RN016, RN025, RN032-RN034
+        console.log('🔍 DEBUG - Buscando recomendações para:', user.email);
+        console.log('🔍 DEBUG - Etapa preferida:', user.etapa_preferida);
+        
         let sql;
         let parametros = [];
 
         if (user.etapa_preferida) {
-            // RN013: Priorizar recursos com critérios do perfil
-            // RN025: Atualizações no perfil afetam recomendações imediatamente
+            // 🎯 BUSCA OTIMIZADA: Encontrar recursos que contenham a etapa do usuário
             sql = `
                 SELECT * FROM recursos 
-                WHERE ativo = true 
-                AND etapa LIKE ?
-                ORDER BY 
-                    CASE WHEN etapa = ? THEN 1 ELSE 2 END,
-                    titulo
+                WHERE ativo = 1 
+                AND (
+                    etapa = ? 
+                    OR etapa LIKE ? 
+                    OR etapa LIKE ? 
+                    OR etapa LIKE ?
+                )
+                ORDER BY data_criacao DESC
+                LIMIT 20
             `;
-            parametros = [`%${user.etapa_preferida}%`, user.etapa_preferida];
+            parametros = [
+                user.etapa_preferida,                    // Etapa exata: "Superior"
+                `${user.etapa_preferida},%`,             // Começa com: "Superior,%"
+                `%,${user.etapa_preferida},%`,           // Está no meio: "%,Superior,%"
+                `%,${user.etapa_preferida}`              // Termina com: "%,Superior"
+            ];
         } else {
-            // RN014, RN032: Perfis incompletos → recomendações por popularidade
-            sql = 'SELECT * FROM recursos WHERE ativo = true ORDER BY data_criacao DESC LIMIT 10';
+            // Usuário sem preferência
+            sql = 'SELECT * FROM recursos WHERE ativo = 1 ORDER BY data_criacao DESC LIMIT 15';
         }
+
+        console.log('🔍 DEBUG - Executando query:', sql);
+        console.log('🔍 DEBUG - Parâmetros:', parametros);
 
         db.query(sql, parametros, (err, results) => {
             if (err) {
-                console.error('Erro ao buscar recomendações:', err);
+                console.error('❌ Erro ao buscar recomendações:', err);
                 return res.status(500).render('pages/erro', {
                     erro: 'Erro interno do servidor',
                     user: req.session.user
                 });
             }
 
+            console.log('✅ DEBUG - Recursos encontrados:', results.length);
+            
             res.render('pages/recomendacoes/para-voce', {
                 user: req.session.user,
                 recursos: results,

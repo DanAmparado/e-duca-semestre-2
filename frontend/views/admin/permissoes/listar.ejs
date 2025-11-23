@@ -1,26 +1,15 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <%- include('../../partials/head') %>
-    <title>Gerenciar Permissões - E-DUCA</title>
-    <style>
-        .permission-badge {
-            font-size: 0.8rem;
-            padding: 0.4em 0.6em;
-        }
-        .form-select-sm {
-            width: 140px;
-        }
-    </style>
+    <%- include('../../partials/head', { title: 'Gerenciar Permissões - E-DUCA' }) %>
 </head>
 <body>
     <div class="d-flex">
         <%- include('../partials/admin-sidebar', { currentPage: 'permissoes' }) %>
         
         <div class="main-content p-4">
-            <!-- Header -->
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h3 text-gray-800">Gerenciar Permissões</h1>
+                <h1 class="h3">Gerenciar Permissões</h1>
                 <div class="btn-toolbar">
                     <span class="badge bg-secondary fs-6">
                         <%= usuarios.length %> usuários
@@ -28,7 +17,6 @@
                 </div>
             </div>
 
-            <!-- Alertas -->
             <% if (success && success.length > 0) { %>
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     <%= success %>
@@ -43,10 +31,9 @@
                 </div>
             <% } %>
 
-            <!-- Tabela de Permissões -->
             <div class="card shadow">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
+                    <h6 class="m-0 fw-bold text-primary">
                         <i class="bi bi-shield-lock me-2"></i>
                         Lista de Usuários e Permissões
                     </h6>
@@ -54,7 +41,7 @@
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover">
-                            <thead class="thead-light">
+                            <thead class="table-light">
                                 <tr>
                                     <th>Email</th>
                                     <th>Nível de Acesso</th>
@@ -85,7 +72,7 @@
                                         </small>
                                     </td>
                                     <td>
-                                        <form action="/admin/permissoes/atualizar/<%= usuario.id %>" method="POST" class="d-inline">
+                                        <form action="/admin/permissoes/atualizar/<%= usuario.id %>" method="POST" class="d-inline update-permission-form">
                                             <div class="input-group input-group-sm" style="width: 280px;">
                                                 <select name="nivel_acesso" class="form-select form-select-sm" required>
                                                     <option value="usuario" <%= usuario.nivel_acesso === 'usuario' ? 'selected' : '' %>>Usuário</option>
@@ -93,8 +80,7 @@
                                                     <option value="moderador" <%= usuario.nivel_acesso === 'moderador' ? 'selected' : '' %>>Moderador</option>
                                                     <option value="superadmin" <%= usuario.nivel_acesso === 'superadmin' ? 'selected' : '' %>>Super Admin</option>
                                                 </select>
-                                                <button type="submit" class="btn btn-primary btn-sm" 
-                                                        onclick="return confirm('Tem certeza que deseja alterar as permissões de <%= usuario.email %>?')">
+                                                <button type="submit" class="btn btn-primary btn-sm" data-user-email="<%= usuario.email %>">
                                                     Atualizar
                                                 </button>
                                             </div>
@@ -108,7 +94,6 @@
                 </div>
             </div>
 
-            <!-- Legenda -->
             <div class="card mt-4">
                 <div class="card-header">
                     <h6 class="card-title mb-0">
@@ -159,6 +144,24 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Configurar confirmação para atualização de permissões
+        document.addEventListener('DOMContentLoaded', function() {
+            const forms = document.querySelectorAll('.update-permission-form');
+            
+            forms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    const email = this.querySelector('button').getAttribute('data-user-email');
+                    const novoNivel = this.querySelector('select').value;
+                    
+                    if (!confirm(`Tem certeza que deseja alterar as permissões de ${email} para ${novoNivel}?`)) {
+                        e.preventDefault();
+                    }
+                });
+            });
+        });
+    </script>
 
     <%- include('../../partials/footer') %>
 </body>

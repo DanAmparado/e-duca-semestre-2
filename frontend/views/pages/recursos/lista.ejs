@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <%- include('../../partials/head') %>
-    <title><%= titulo %> - E-DUCA</title>
+    <%- include('../../partials/head', { title: titulo + ' - E-DUCA' }) %>
 </head>
 <body>
     <%- include('../../partials/navbar', { user: user }) %>
@@ -19,10 +18,12 @@
             <div class="col-12">
                 <h1 class="mb-4"><%= titulo %></h1>
                 
-                <!-- ✅ BARRA DE PESQUISA CORRIGIDA -->
+                <!-- Barra de Pesquisa -->
                 <div class="card mb-4">
                     <div class="card-body">
-                        <h5 class="card-title">🔍 Encontrar Recursos</h5>
+                        <h5 class="card-title">
+                            <i class="bi bi-search me-2"></i>Encontrar Recursos
+                        </h5>
                         <form action="/recursos/busca" method="GET" class="row g-3 align-items-end">
                             <div class="col-md-8">
                                 <label for="termoBusca" class="form-label">Buscar por palavra-chave:</label>
@@ -35,7 +36,7 @@
                             </div>
                             <div class="col-md-4">
                                 <button type="submit" class="btn btn-primary w-100">
-                                    <i class="fas fa-search"></i> Buscar Recursos
+                                    <i class="bi bi-search"></i> Buscar Recursos
                                 </button>
                             </div>
                         </form>
@@ -44,31 +45,6 @@
                                 Busque por título, descrição ou etapa educacional
                             </small>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Filtros Rápidos por Etapa -->
-                <div class="mb-4">
-                    <h5>📚 Explorar por Etapa Educacional</h5>
-                    <div class="d-flex flex-wrap gap-2">
-                        <a href="/recursos/educacao/basica" class="btn btn-outline-primary btn-sm">
-                            Educação Básica
-                        </a>
-                        <a href="/recursos/educacao/fundamental" class="btn btn-outline-primary btn-sm">
-                            Ensino Fundamental
-                        </a>
-                        <a href="/recursos/educacao/medio" class="btn btn-outline-primary btn-sm">
-                            Ensino Médio
-                        </a>
-                        <a href="/recursos/educacao/profissional" class="btn btn-outline-primary btn-sm">
-                            Educação Profissional
-                        </a>
-                        <a href="/recursos/educacao/superior" class="btn btn-outline-primary btn-sm">
-                            Educação Superior
-                        </a>
-                        <a href="/recursos" class="btn btn-outline-secondary btn-sm">
-                            Ver Todos
-                        </a>
                     </div>
                 </div>
 
@@ -117,11 +93,11 @@
                                         <a href="<%= recurso.link_externo %>" 
                                            target="_blank" 
                                            class="btn btn-primary btn-sm">
-                                            🌐 Acessar
+                                            <i class="bi bi-globe"></i> Acessar
                                         </a>
                                         <a href="/recursos/<%= recurso.id %>" 
                                            class="btn btn-outline-secondary btn-sm">
-                                            📋 Detalhes
+                                            <i class="bi bi-info-circle"></i> Detalhes
                                         </a>
                                     </div>
                                 </div>

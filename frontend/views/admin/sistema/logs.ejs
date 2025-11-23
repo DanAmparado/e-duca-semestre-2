@@ -1,31 +1,35 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <%- include('../../partials/head') %>
-    <title>Logs do Sistema - E-DUCA</title>
+    <%- include('../../partials/head', { title: 'Logs do Sistema - E-DUCA' }) %>
 </head>
 <body>
     <div class="d-flex">
         <%- include('../partials/admin-sidebar', { currentPage: 'logs' }) %>
         
         <div class="main-content p-4">
-            <!-- Header -->
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h3 text-gray-800">Logs do Sistema</h1>
+                <h1 class="h3">Logs do Sistema</h1>
                 <div class="text-muted">
                     Últimos <strong><%= logs.length %></strong> registros
                 </div>
             </div>
 
-            <!-- Logs Table -->
             <div class="card shadow">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Registros de Atividade</h6>
+                    <h6 class="m-0 fw-bold text-primary">Registros de Atividade</h6>
                 </div>
                 <div class="card-body">
+                    <% if (logs.length === 0) { %>
+                    <div class="text-center py-4">
+                        <i class="bi bi-inbox text-muted fs-1 mb-3"></i>
+                        <h5 class="text-muted">Nenhum registro de log encontrado</h5>
+                        <p class="text-muted">As atividades do sistema aparecerão aqui.</p>
+                    </div>
+                    <% } else { %>
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover">
-                            <thead class="thead-light">
+                            <thead class="table-light">
                                 <tr>
                                     <th>Data/Hora</th>
                                     <th>Tipo</th>
@@ -62,13 +66,6 @@
                                 <% }) %>
                             </tbody>
                         </table>
-                    </div>
-
-                    <% if (logs.length === 0) { %>
-                    <div class="text-center py-4">
-                        <i class="bi bi-inbox text-muted fa-3x mb-3"></i>
-                        <h5 class="text-muted">Nenhum registro de log encontrado</h5>
-                        <p class="text-muted">As atividades do sistema aparecerão aqui.</p>
                     </div>
                     <% } %>
                 </div>

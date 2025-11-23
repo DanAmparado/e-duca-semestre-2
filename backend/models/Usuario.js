@@ -22,7 +22,6 @@ class Usuario {
 
     static async buscarPorEmail(email) {
         return new Promise((resolve, reject) => {
-            // 🚨 CORREÇÃO: Usar SELECT * para pegar TODOS os campos
             const sql = 'SELECT * FROM usuarios WHERE email = ?';
             
             db.query(sql, [email], (err, results) => {
@@ -30,8 +29,6 @@ class Usuario {
                     console.error('Erro ao buscar usuário por email:', err);
                     reject(err);
                 } else {
-                    // 🚨 DEBUG: Verificar o que está vindo do banco
-                    console.log('DEBUG - Usuario encontrado:', results[0]);
                     resolve(results[0]);
                 }
             });

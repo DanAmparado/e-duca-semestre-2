@@ -1,25 +1,41 @@
-// Arquivo principal de JavaScript
-console.log('✅ E-DUCA JS carregado');
-
-// Inicialização básica quando o DOM estiver carregado
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 DOM carregado - inicializando componentes');
-    
-    // Inicializar tooltips do Bootstrap
+// Função para inicializar componentes Bootstrap
+function inicializarComponentesBootstrap() {
+    // Inicializar tooltips
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
-    
-    // Fechar alerts automaticamente após 5 segundos
-    const alerts = document.querySelectorAll('.alert');
-    alerts.forEach(function(alert) {
-        setTimeout(function() {
-            const bsAlert = new bootstrap.Alert(alert);
-            bsAlert.close();
-        }, 5000);
+
+    // Inicializar popovers
+    const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+    const popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+        return new bootstrap.Popover(popoverTriggerEl);
     });
-    
-    // Log para debug
-    console.log('✅ Componentes inicializados');
+
+    // Inicializar modais (se necessário)
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        new bootstrap.Modal(modal);
+    });
+
+    console.log('Componentes Bootstrap inicializados');
+}
+
+// Event listener seguro
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicialização segura dos componentes Bootstrap
+    if (typeof bootstrap !== 'undefined') {
+        inicializarComponentesBootstrap();
+    } else {
+        console.warn('Bootstrap não carregado');
+        // Tentar carregar Bootstrap dinamicamente se necessário
+        setTimeout(() => {
+            if (typeof bootstrap !== 'undefined') {
+                inicializarComponentesBootstrap();
+            }
+        }, 1000);
+    }
 });
+
+// Tornar a função global para evitar ReferenceError
+window.inicializarComponentesBootstrap = inicializarComponentesBootstrap;

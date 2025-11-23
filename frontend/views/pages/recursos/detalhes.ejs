@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <%- include('../../partials/head') %>
-    <title><%= recurso.titulo %> - E-DUCA</title>
-    
-    <!-- ✅ ADICIONADO: Meta tags para SEO -->
-    <meta name="description" content="<%= recurso.descricao ? recurso.descricao.substring(0, 160) : 'Recurso educacional da plataforma E-DUCA' %>">
+    <%- include('../../partials/head', { 
+        title: recurso.titulo + ' - E-DUCA',
+        description: recurso.descricao ? recurso.descricao.substring(0, 160) : 'Recurso educacional da plataforma E-DUCA'
+    }) %>
 </head>
 <body>
-    <%- include('../../partials/navbar', { user: user }) %> <!-- ✅ CORRIGIDO -->
+    <%- include('../../partials/navbar', { user: user }) %>
     
     <div class="container mt-4">
         <nav aria-label="breadcrumb">
@@ -31,7 +30,6 @@
                         <h5 class="text-muted">Descrição</h5>
                         <p class="card-text"><%= recurso.descricao || 'Descrição não disponível.' %></p>
                         
-                        <!-- ✅ MELHORADO: Informações organizadas -->
                         <div class="mt-4">
                             <h5 class="text-muted">Informações do Recurso</h5>
                             <div class="row">
@@ -60,7 +58,7 @@
                                    target="_blank" 
                                    rel="noopener noreferrer"
                                    class="btn btn-success btn-lg w-100 mb-2">
-                                    🔗 Acessar Recurso
+                                    <i class="bi bi-link-45deg"></i> Acessar Recurso
                                 </a>
                                 <small class="text-muted">
                                     Link externo verificado
@@ -70,8 +68,7 @@
                     </div>
                 </div>
 
-                <!-- ✅ ADICIONADO: Metadados adicionais -->
-                <% if (recurso.tipo || recurso.formato) { %>
+                <% if (recurso.tipo || recurso.formato || recurso.duracao) { %>
                 <div class="mt-4 pt-3 border-top">
                     <h5 class="text-muted">Detalhes Técnicos</h5>
                     <div class="row">
@@ -109,11 +106,11 @@
 
     <%- include('../../partials/footer') %>
     
-    <!-- ✅ ADICIONADO: Script para tracking de cliques (opcional) -->
+    <!-- Script para tracking de cliques (opcional - manter se for usado) -->
     <script>
         document.querySelector('a[target="_blank"]').addEventListener('click', function() {
             // Aqui você pode adicionar analytics para track de cliques
-            console.log('Recurso acessado: <%= recurso.titulo %>');
+            // Exemplo: Google Analytics ou outro sistema de tracking
         });
     </script>
 </body>

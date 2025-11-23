@@ -22,26 +22,20 @@ const recursosController = {
         });
     },
 
-    // Método listarPorEtapa
+    // Listar recursos por etapa
     listarPorEtapa: (req, res) => {
         const etapa = req.params.etapa;
         
         const etapasMap = {
-            // Educação Básica
             'basica': 'Basico',
             'fundamental': 'Fundamental', 
             'medio': 'Medio',
-            
-            // Educação Profissional
             'profissional': 'Tecnico',
-            
-            // Educação Superior
             'superior': 'Superior'
         };
 
         const etapaBanco = etapasMap[etapa];
         
-        // 🚨 VERIFICAÇÃO CRÍTICA
         if (!etapaBanco) {
             return res.status(404).render('pages/erro', {
                 erro: 'Etapa educacional não encontrada',
@@ -52,11 +46,6 @@ const recursosController = {
         const sql = 'SELECT * FROM recursos WHERE ativo = true AND etapa LIKE ? ORDER BY titulo';
         const parametros = [`%${etapaBanco}%`];
         
-        // 🚨 DEBUG: log temporario
-        console.log('DEBUG - Etapa URL:', etapa);
-        console.log('DEBUG - Etapa Banco:', etapaBanco);
-        console.log('DEBUG - SQL:', sql, parametros);
-        
         db.query(sql, parametros, (err, results) => {
             if (err) {
                 console.error('Erro ao buscar recursos por etapa:', err);
@@ -66,7 +55,6 @@ const recursosController = {
                 });
             }
 
-            // Títulos atualizados
             const titulos = {
                 'basica': 'Educação Básica',
                 'fundamental': 'Ensino Fundamental', 
@@ -83,6 +71,7 @@ const recursosController = {
             });
         });
     },
+
     // Buscar recursos por termo
     buscarRecursos: (req, res) => {
         const termo = req.query.q;
@@ -147,7 +136,7 @@ const recursosController = {
         });
     },
 
-    // Página de administração de recursos (futuro)
+    // Página de administração de recursos
     adminListar: (req, res) => {
         if (!req.session.user) {
             return res.redirect('/auth/login');
@@ -170,7 +159,6 @@ const recursosController = {
             });
         });
     }
-    
 };
 
 module.exports = recursosController;

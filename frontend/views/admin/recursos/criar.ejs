@@ -1,28 +1,25 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <%- include('../../partials/head') %>
-    <title>Criar Recurso - E-DUCA</title>
+    <%- include('../../partials/head', { title: 'Criar Recurso - E-DUCA' }) %>
 </head>
 <body>
     <div class="d-flex">
         <%- include('../partials/admin-sidebar', { currentPage: 'recursos' }) %>
         
         <div class="main-content p-4">
-            <!-- Header -->
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h3 text-gray-800">Criar Novo Recurso</h1>
+                <h1 class="h3">Criar Novo Recurso</h1>
                 <a href="/admin/recursos" class="btn btn-outline-secondary">
                     <i class="bi bi-arrow-left me-1"></i> Voltar
                 </a>
             </div>
 
-            <!-- Create Form -->
             <div class="row justify-content-center">
                 <div class="col-lg-8">
                     <div class="card shadow">
                         <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">Informações do Recurso</h6>
+                            <h6 class="m-0 fw-bold text-primary">Informações do Recurso</h6>
                         </div>
                         <div class="card-body">
                             <% if (typeof erro !== 'undefined') { %>
@@ -83,10 +80,9 @@
                         </div>
                     </div>
 
-                    <!-- Preview Card -->
                     <div class="card shadow mt-4">
                         <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-info">Pré-visualização</h6>
+                            <h6 class="m-0 fw-bold text-info">Pré-visualização</h6>
                         </div>
                         <div class="card-body">
                             <div id="preview" class="text-muted">
@@ -109,37 +105,9 @@
         </div>
     </div>
 
-    <script>
-        // Live Preview
-        function updatePreview() {
-            document.getElementById('preview-titulo').textContent = 
-                document.getElementById('titulo').value || 'Título do recurso';
-            
-            document.getElementById('preview-descricao').textContent = 
-                document.getElementById('descricao').value || 'Descrição do recurso educacional...';
-            
-            document.getElementById('preview-etapa').textContent = 
-                document.getElementById('etapa').value || 'Etapa educacional';
-            
-            const link = document.getElementById('link_externo').value;
-            if (link) {
-                document.getElementById('preview-link').href = link;
-                document.getElementById('preview-link').style.display = 'inline-block';
-            } else {
-                document.getElementById('preview-link').style.display = 'none';
-            }
-        }
-
-        // Add event listeners for live preview
-        document.getElementById('titulo').addEventListener('input', updatePreview);
-        document.getElementById('descricao').addEventListener('input', updatePreview);
-        document.getElementById('etapa').addEventListener('change', updatePreview);
-        document.getElementById('link_externo').addEventListener('input', updatePreview);
-
-        // Initial preview
-        updatePreview();
-    </script>
-
     <%- include('../../partials/footer') %>
+    
+    <!-- Incluir o arquivo JavaScript externo -->
+    <script src="/js/recursos-form.js"></script>
 </body>
 </html>

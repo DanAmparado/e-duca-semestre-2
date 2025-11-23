@@ -4,15 +4,15 @@ const adminController = {
     // 📊 DASHBOARD ADMIN
     dashboard: async (req, res) => {
         try {
-            // Estatísticas principais - AJUSTADO PARA SCHEMA REAL
+            // 🆕 SOLUÇÃO 2: Stats com fallbacks robustos
             const statsQuery = `
                 SELECT 
                     (SELECT COUNT(*) FROM usuarios) as total_usuarios,
                     (SELECT COUNT(*) FROM usuarios WHERE is_admin = TRUE) as total_admins,
                     (SELECT COUNT(*) FROM recursos WHERE ativo = 1) as recursos_ativos,
                     (SELECT COUNT(*) FROM recursos WHERE ativo = 0) as recursos_inativos,
-                    (SELECT COUNT(*) FROM noticias WHERE status = 'publicado') as noticias_publicadas,
-                    (SELECT COUNT(*) FROM noticias WHERE status = 'agendado') as noticias_agendadas
+                    (SELECT COALESCE(COUNT(*), 0) FROM noticias WHERE status = 'publicado') as noticias_publicadas,
+                    (SELECT COALESCE(COUNT(*), 0) FROM noticias WHERE status = 'agendado') as noticias_agendadas
             `;
 
             // Recursos pendentes
@@ -124,8 +124,8 @@ const adminController = {
             });
         }
 
-        // ✅ CORREÇÃO: Definir is_admin baseado no nível de acesso
-        const isAdmin = nivel_acesso !== 'usuario'; // Qualquer nível exceto 'usuario' é admin
+        // Definir is_admin baseado no nível de acesso
+        const isAdmin = nivel_acesso !== 'usuario';
 
         const sql = 'UPDATE usuarios SET nivel_acesso = ?, is_admin = ? WHERE id = ?';
 
@@ -138,14 +138,17 @@ const adminController = {
                 });
             }
 
+            const descricaoLog = `Alterou nível de acesso do usuário ${id} para ${nivel_acesso} (is_admin: ${isAdmin})`;
+
             // Log da ação
             const logSql = `
                 INSERT INTO sistema_logs (tipo_log, usuario_id, acao, descricao, ip_address)
                 VALUES ('admin', ?, 'alterar_nivel_acesso', ?, ?)
             `;
+
             db.query(logSql, [
                 req.session.user.id,
-                `Alterou nível de acesso do usuário ${id} para ${nivel_acesso} (is_admin: ${isAdmin})`,
+                descricaoLog, // ✅ Agora a variável está definida
                 req.ip
             ]);
 
@@ -479,8 +482,8 @@ const adminController = {
                     (SELECT COUNT(*) FROM recursos WHERE ativo = 1 AND etapa LIKE '%Superior%') as recursos_superior,
                     
                     -- Notícias
-                    (SELECT COUNT(*) FROM noticias WHERE status = 'publicado') as noticias_publicadas,
-                    (SELECT COUNT(*) FROM noticias WHERE status = 'agendado') as noticias_agendadas
+                    (SELECT COALESCE(COUNT(*), 0) FROM noticias WHERE status = 'publicado') as noticias_publicadas,
+                    (SELECT COALESCE(COUNT(*), 0) FROM noticias WHERE status = 'agendado') as noticias_agendadas
             `;
 
             // 👥 USUÁRIOS POR ETAPA PREFERIDA
@@ -675,7 +678,7 @@ const adminController = {
                             (SELECT COUNT(*) FROM usuarios) as total_usuarios,
                             (SELECT COUNT(*) FROM recursos WHERE ativo = 1) as recursos_ativos,
                             (SELECT COUNT(*) FROM recursos WHERE data_criacao >= DATE_SUB(NOW(), INTERVAL ? DAY)) as novos_recursos,
-                            (SELECT COUNT(*) FROM noticias WHERE status = 'publicado') as noticias_publicadas
+                            (SELECT COALESCE(COUNT(*), 0) FROM noticias WHERE status = 'publicado') as noticias_publicadas
                     `;
                     break;
 
@@ -763,8 +766,62 @@ const adminController = {
         }
     },
 
+    toggleRecursoStatus: (req, res) => {
+        const { id } = req.params;
+
+        // Primeiro, buscar o recurso para saber o status atual
+        const sql = 'SELECT * FROM recursos WHERE id = ?';
+        db.query(sql, [id], (err, results) => {
+            if (err) {
+                console.error('Erro ao buscar recurso:', err);
+                return res.status(500).json({ 
+                    success: false, 
+                    error: 'Erro interno do servidor' 
+                });
+            }
+
+            if (results.length === 0) {
+                return res.status(404).json({ 
+                    success: false, 
+                    error: 'Recurso não encontrado' 
+                });
+            }
+
+            const recurso = results[0];
+            const novoStatus = !recurso.ativo;
+
+            // Atualizar o status
+            const updateSql = 'UPDATE recursos SET ativo = ? WHERE id = ?';
+            db.query(updateSql, [novoStatus, id], (err, result) => {
+                if (err) {
+                    console.error('Erro ao alterar status do recurso:', err);
+                    return res.status(500).json({ 
+                        success: false, 
+                        error: 'Erro interno do servidor' 
+                    });
+                }
+
+                // Log da ação
+                const logSql = `
+                    INSERT INTO sistema_logs (tipo_log, usuario_id, acao, descricao, ip_address)
+                    VALUES ('admin', ?, 'toggle_recurso', ?, ?)
+                `;
+                db.query(logSql, [
+                    req.session.user.id,
+                    `Alterou status do recurso ID: ${id} para ${novoStatus ? 'ativo' : 'inativo'}`,
+                    req.ip
+                ]);
+
+                res.json({ 
+                    success: true, 
+                    message: `Recurso ${novoStatus ? 'ativado' : 'desativado'} com sucesso`,
+                    novoStatus: novoStatus
+                });
+            });
+        });
+    },
+
     atualizarPermissoes: (req, res) => {
-        // ✅ Obter conexão do pool
         db.getConnection((err, connection) => {
             if (err) {
                 console.error('Erro ao obter conexão:', err);
@@ -797,7 +854,7 @@ const adminController = {
                     const usuario = resultados[0];
                     const nivelAnterior = usuario.nivel_acesso;
 
-                    // ✅ CORREÇÃO: Atualizar tanto nivel_acesso quanto is_admin
+                    // Atualizar tanto nivel_acesso quanto is_admin
                     const isAdmin = nivel_acesso !== 'usuario';
                     const updateSql = 'UPDATE usuarios SET nivel_acesso = ?, is_admin = ? WHERE id = ?';
                     
@@ -809,22 +866,23 @@ const adminController = {
                             return res.redirect('/admin/permissoes');
                         }
 
+                        // ✅ CORREÇÃO: Definir descricaoLog antes de usar
+                        const descricaoLog = `Alterou permissões de ${usuario.email}: ${nivelAnterior} → ${nivel_acesso} (is_admin: ${isAdmin})`;
+
                         // Registrar no log do sistema
                         const logSql = `
                             INSERT INTO sistema_logs 
                             (tipo_log, usuario_id, acao, descricao, ip_address) 
                             VALUES (?, ?, ?, ?, ?)
                         `;
-                        const descricao = `Alterou permissões de ${usuario.email}: ${nivelAnterior} → ${nivel_acesso} (is_admin: ${isAdmin})`;
                         
                         connection.query(logSql, [
                             'permissao',
                             req.session.user.id,
                             'Atualização de Permissões',
-                            descricao,
+                            descricaoLog, // ✅ Agora a variável está definida
                             req.ip
                         ], (logErr) => {
-                            // ✅ SEMPRE liberar a conexão
                             connection.release();
                             
                             if (logErr) {
@@ -838,7 +896,6 @@ const adminController = {
                 });
 
             } catch (error) {
-                // ✅ SEMPRE liberar a conexão em caso de erro
                 if (connection) connection.release();
                 console.error('Erro em atualizarPermissoes:', error);
                 req.flash('error', 'Erro interno do servidor.');

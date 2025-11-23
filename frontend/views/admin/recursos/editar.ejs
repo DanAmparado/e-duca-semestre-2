@@ -1,17 +1,15 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <%- include('../../partials/head') %>
-    <title>Editar Recurso - E-DUCA</title>
+    <%- include('../../partials/head', { title: 'Editar Recurso - E-DUCA' }) %>
 </head>
 <body>
     <div class="d-flex">
         <%- include('../partials/admin-sidebar', { currentPage: 'recursos' }) %>
         
         <div class="main-content p-4">
-            <!-- Header -->
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h3 text-gray-800">Editar Recurso</h1>
+                <h1 class="h3">Editar Recurso</h1>
                 <div>
                     <a href="/admin/recursos" class="btn btn-outline-secondary me-2">
                         <i class="bi bi-arrow-left me-1"></i> Voltar
@@ -22,12 +20,11 @@
                 </div>
             </div>
 
-            <!-- Edit Form -->
             <div class="row justify-content-center">
                 <div class="col-lg-8">
                     <div class="card shadow">
                         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                            <h6 class="m-0 font-weight-bold text-primary">Editar Recurso #<%= recurso.id %></h6>
+                            <h6 class="m-0 fw-bold text-primary">Editar Recurso #<%= recurso.id %></h6>
                             <span class="badge bg-<%= recurso.ativo ? 'success' : 'danger' %>">
                                 <%= recurso.ativo ? 'Ativo' : 'Inativo' %>
                             </span>
@@ -87,17 +84,6 @@
                                             </button>
                                             <a href="/admin/recursos" class="btn btn-outline-secondary">Cancelar</a>
                                             
-                                            <% if (recurso.ativo) { %>
-                                                <button type="button" class="btn btn-outline-danger ms-auto" 
-                                                        onclick="excluirRecurso(<%= recurso.id %>)">
-                                                    <i class="bi bi-trash me-1"></i> Desativar
-                                                </button>
-                                            <% } else { %>
-                                                <button type="button" class="btn btn-outline-success ms-auto" 
-                                                        onclick="restaurarRecurso(<%= recurso.id %>)">
-                                                    <i class="bi bi-arrow-clockwise me-1"></i> Reativar
-                                                </button>
-                                            <% } %>
                                         </div>
                                     </div>
                                 </div>
@@ -105,10 +91,9 @@
                         </div>
                     </div>
 
-                    <!-- Resource Info -->
                     <div class="card shadow mt-4">
                         <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-info">Informações do Recurso</h6>
+                            <h6 class="m-0 fw-bold text-info">Informações do Recurso</h6>
                         </div>
                         <div class="card-body">
                             <div class="row">
@@ -134,50 +119,9 @@
         </div>
     </div>
 
-    <script>
-        function excluirRecurso(id) {
-            if (confirm('Tem certeza que deseja desativar este recurso?\n\nEle não aparecerá mais no site público.')) {
-                fetch(`/admin/recursos/excluir/${id}`, {
-                    method: 'DELETE'
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Recurso desativado com sucesso!');
-                        location.reload();
-                    } else {
-                        alert('Erro: ' + data.error);
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro:', error);
-                    alert('Erro ao processar solicitação.');
-                });
-            }
-        }
-
-        function restaurarRecurso(id) {
-            if (confirm('Deseja reativar este recurso?')) {
-                fetch(`/admin/recursos/restaurar/${id}`, {
-                    method: 'POST'
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Recurso reativado com sucesso!');
-                        location.reload();
-                    } else {
-                        alert('Erro: ' + data.error);
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro:', error);
-                    alert('Erro ao processar solicitação.');
-                });
-            }
-        }
-    </script>
-
     <%- include('../../partials/footer') %>
+    
+    <!-- Incluir o arquivo JavaScript externo -->
+    <script src="/js/recursos-form.js"></script>
 </body>
 </html>

@@ -1,8 +1,3 @@
-// backend/config/permissions.js
-
-/**
- * Configuração centralizada de permissões por nível
- */
 const permissionsConfig = {
     superadmin: {
         name: 'Super Administrador',
@@ -40,7 +35,6 @@ const permissionsConfig = {
     }
 };
 
-// Helper functions
 const can = (nivel, action) => {
     return permissionsConfig[nivel]?.can.includes(action) || false;
 };

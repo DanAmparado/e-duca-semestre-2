@@ -1,22 +1,26 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <%- include('../../partials/head') %>
-    <title>Para Você - E-DUCA</title>
+    <%- include('../../partials/head', { title: 'Para Você - E-DUCA' }) %>
 </head>
 <body>
-    <%- include('../../partials/navbar', { user: user }) %> <!-- ✅ CORRIGIDO -->
+    <%- include('../../partials/navbar', { user: user }) %>
     
     <div class="container mt-5 pt-5">
         <div class="row">
             <div class="col-12">
-                <h1>🎯 Para Você</h1>
+                <h1 class="mb-4">
+                    <i class="bi bi-stars text-primary me-2"></i>Para Você
+                </h1>
                 
                 <% if (temPreferencia) { %>
                     <div class="alert alert-info">
                         <h5>Recomendações Personalizadas</h5>
                         <p>Baseado na sua etapa de interesse: <strong><%= etapaPreferida %></strong></p>
-                        <small>💡 <a href="/perfil">Alterar preferências</a></small>
+                        <small>
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <a href="/perfil">Alterar preferências</a>
+                        </small>
                     </div>
                 <% } else { %>
                     <div class="alert alert-warning">
@@ -34,21 +38,30 @@
                     <div class="row">
                         <% recursos.forEach(recurso => { %>
                         <div class="col-md-6 col-lg-4 mb-4">
-                            <div class="card h-100">
+                            <div class="card h-100 shadow-sm">
                                 <div class="card-body">
                                     <h5 class="card-title"><%= recurso.titulo %></h5>
-                                    <p class="card-text"><%= recurso.descricao %></p>
-                                    <p class="text-muted small">
-                                        <strong>Etapa:</strong> <%= recurso.etapa %>
+                                    <p class="card-text text-muted small">
+                                        <%= recurso.descricao && recurso.descricao.length > 120 ? 
+                                            recurso.descricao.substring(0, 120) + '...' : 
+                                            recurso.descricao %>
                                     </p>
+                                    <div class="mb-2">
+                                        <span class="badge bg-primary"><%= recurso.etapa %></span>
+                                    </div>
                                 </div>
-                                <div class="card-footer">
-                                    <a href="<%= recurso.link_externo %>" target="_blank" class="btn btn-primary btn-sm">
-                                        🌐 Acessar
-                                    </a>
-                                    <a href="/recursos/<%= recurso.id %>" class="btn btn-outline-secondary btn-sm">
-                                        📋 Detalhes
-                                    </a>
+                                <div class="card-footer bg-transparent">
+                                    <div class="d-flex justify-content-between">
+                                        <a href="<%= recurso.link_externo %>" 
+                                           target="_blank" 
+                                           class="btn btn-primary btn-sm">
+                                            <i class="bi bi-globe"></i> Acessar
+                                        </a>
+                                        <a href="/recursos/<%= recurso.id %>" 
+                                           class="btn btn-outline-secondary btn-sm">
+                                            <i class="bi bi-info-circle"></i> Detalhes
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -57,7 +70,7 @@
                 <% } %>
 
                 <div class="mt-4 text-center">
-                    <a href="/recursos" class="btn btn-outline-primary">Ver Todos os Recursos</a>
+                    <a href="/recursos" class="btn btn-outline-primary me-2">Ver Todos os Recursos</a>
                     <a href="/perfil" class="btn btn-outline-secondary">Editar Preferências</a>
                 </div>
             </div>

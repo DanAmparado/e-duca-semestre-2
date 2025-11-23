@@ -1,34 +1,35 @@
 const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
-const adminAuth = require('../middleware/adminAuth'); // Já atualizado com requireEditor, etc.
-const auth = require('../middleware/auth'); // Middleware básico de autenticação
+const adminAuth = require('../middleware/adminAuth');
+const auth = require('../middleware/auth');
 const db = require('../config/database');
 
-// 🔐 APLICAR MIDDLEWARE DE AUTENTICAÇÃO BÁSICA EM TODAS AS ROTAS
+// APLICAR MIDDLEWARE DE AUTENTICAÇÃO BÁSICA EM TODAS AS ROTAS
 router.use(auth);
 
-// 📊 DASHBOARD E RELATÓRIOS - Todos os admins (editor+)
+// DASHBOARD E RELATÓRIOS - Todos os admins (editor+)
 router.get('/', adminAuth.requireEditor, adminController.dashboard);
 router.get('/dashboard', adminAuth.requireEditor, adminController.dashboard);
 router.get('/relatorios', adminAuth.requireEditor, adminController.relatorios);
 
-// 👥 GERENCIAMENTO DE USUÁRIOS - Apenas superadmin
+// GERENCIAMENTO DE USUÁRIOS - Apenas superadmin
 router.get('/usuarios', adminAuth.requireSuperAdmin, adminController.listarUsuarios);
 router.post('/usuarios/:id/alterar-nivel', adminAuth.requireSuperAdmin, adminController.alterarNivelAcesso);
 
-// 📚 GERENCIAMENTO DE RECURSOS
+// GERENCIAMENTO DE RECURSOS
 router.get('/recursos', adminAuth.requireEditor, adminController.listarRecursos);
 router.get('/recursos/criar', adminAuth.requireEditor, adminController.formularioCriarRecurso);
 router.post('/recursos/criar', adminAuth.requireEditor, adminController.criarRecurso);
 router.get('/recursos/editar/:id', adminAuth.requireEditor, adminController.formularioEditarRecurso);
 router.post('/recursos/editar/:id', adminAuth.requireEditor, adminController.atualizarRecurso);
+router.post('/recursos/:id/toggle', adminAuth.requireEditor, adminController.toggleRecursoStatus);
 
-// 🗑️ EXCLUSÃO/RESTAURAÇÃO - Apenas moderador+
+// EXCLUSÃO/RESTAURAÇÃO - Apenas moderador+
 router.delete('/recursos/excluir/:id', adminAuth.requireModerador, adminController.excluirRecurso);
 router.post('/recursos/restaurar/:id', adminAuth.requireModerador, adminController.restaurarRecurso);
 
-// 📰 GERENCIAMENTO DE NOTÍCIAS (FUTURO) - Editor+
+// GERENCIAMENTO DE NOTÍCIAS (FUTURO) - Editor+
 router.get('/noticias', adminAuth.requireEditor, (req, res) => {
     res.render('admin/noticias/listar', {
         user: req.session.user,
@@ -36,7 +37,7 @@ router.get('/noticias', adminAuth.requireEditor, (req, res) => {
     });
 });
 
-// 🔧 LOGS DO SISTEMA - Apenas Moderador e Superadmin
+// LOGS DO SISTEMA - Apenas Moderador e Superadmin
 router.get('/sistema/logs', adminAuth.requireModerador, (req, res) => {
     const sql = 'SELECT * FROM sistema_logs ORDER BY data_log DESC LIMIT 100';
     
@@ -56,7 +57,7 @@ router.get('/sistema/logs', adminAuth.requireModerador, (req, res) => {
     });
 });
 
-// 📊 API ENDPOINTS PARA DASHBOARD (AJAX) - Editor+
+// API ENDPOINTS PARA DASHBOARD (AJAX) - Editor+
 router.get('/api/dashboard/stats', adminAuth.requireEditor, (req, res) => {
     const statsQueries = [
         'SELECT COUNT(*) as total FROM usuarios',
@@ -67,28 +68,44 @@ router.get('/api/dashboard/stats', adminAuth.requireEditor, (req, res) => {
 
     // Executar todas as queries em paralelo
     Promise.all([
-        new Promise((resolve, reject) => {
+        new Promise((resolve) => {
             db.query(statsQueries[0], (err, results) => {
-                if (err) reject(err);
-                else resolve(results[0].total);
+                if (err) {
+                    console.error('Erro ao contar usuários:', err);
+                    resolve(0);
+                } else {
+                    resolve(results[0].total);
+                }
             });
         }),
-        new Promise((resolve, reject) => {
+        new Promise((resolve) => {
             db.query(statsQueries[1], (err, results) => {
-                if (err) reject(err);
-                else resolve(results[0].total);
+                if (err) {
+                    console.error('Erro ao contar recursos ativos:', err);
+                    resolve(0);
+                } else {
+                    resolve(results[0].total);
+                }
             });
         }),
-        new Promise((resolve, reject) => {
+        new Promise((resolve) => {
             db.query(statsQueries[2], (err, results) => {
-                if (err) reject(err);
-                else resolve(results[0].total);
+                if (err) {
+                    console.error('Erro ao contar recursos inativos:', err);
+                    resolve(0);
+                } else {
+                    resolve(results[0].total);
+                }
             });
         }),
-        new Promise((resolve, reject) => {
+        new Promise((resolve) => {
             db.query(statsQueries[3], (err, results) => {
-                if (err) reject(err);
-                else resolve(results[0].total);
+                if (err) {
+                    console.error('Erro ao contar notícias:', err);
+                    resolve(0);
+                } else {
+                    resolve(results[0].total);
+                }
             });
         })
     ])
@@ -102,7 +119,15 @@ router.get('/api/dashboard/stats', adminAuth.requireEditor, (req, res) => {
     })
     .catch(error => {
         console.error('Erro ao buscar stats:', error);
-        res.status(500).json({ error: 'Erro interno do servidor' });
+        res.status(500).json({ 
+            error: 'Erro interno do servidor',
+            stats_fallback: {
+                total_usuarios: 0,
+                recursos_ativos: 0,
+                recursos_inativos: 0,
+                noticias_publicadas: 0
+            }
+        });
     });
 });
 
@@ -124,22 +149,11 @@ router.get('/api/recursos/pendentes', adminAuth.requireEditor, (req, res) => {
     });
 });
 
-// 🆕 API RELATÓRIOS (AJAX) - Editor+
+// API RELATÓRIOS (AJAX) - Editor+
 router.get('/api/relatorios', adminAuth.requireEditor, adminController.apiRelatorios);
 
-// 🆕 ROTA DE GERENCIAMENTO DE PERMISSÕES - Apenas superadmin
+// ROTA DE GERENCIAMENTO DE PERMISSÕES - Apenas superadmin
 router.get('/permissoes', adminAuth.requireSuperAdmin, adminController.listarPermissoes);
 router.post('/permissoes/atualizar/:id', adminAuth.requireSuperAdmin, adminController.atualizarPermissoes);
-
-// 🆕 ROTA DE TESTE PARA DEBUG (OPCIONAL) - Editor+
-router.get('/teste-tudo', adminAuth.requireEditor, (req, res) => {
-    res.json({
-        message: '✅ Admin routes working perfectly!',
-        user: req.session.user,
-        is_admin: req.session.user?.is_admin,
-        nivel_acesso: req.session.user?.nivel_acesso,
-        timestamp: new Date().toISOString()
-    });
-});
 
 module.exports = router;

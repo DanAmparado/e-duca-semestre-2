@@ -1,6 +1,3 @@
-/* ===== CSS ADAPTADO - SEMESTRE 1 + SEMESTRE 2 ===== */
-
-/* ===== VARIÁVEIS DO SEMESTRE 1 ===== */
 :root {
   --color-primary: #1F24A3;
   --color-primary-hover: #191d82;
@@ -25,7 +22,6 @@
   --btn-box-shadow: 0 2px 6px rgba(31, 36, 163, 0.25);
 }
 
-/* ===== BASE STYLES ADAPTADOS ===== */
 body {
   font-family: "Montserrat", sans-serif;
   background-color: var(--color-bg);
@@ -34,9 +30,6 @@ body {
   padding: 0;
 }
 
-/* ===== SOBRESCREVER BOOTSTRAP COM CORES DO SEMESTRE 1 ===== */
-
-/* NAVBAR */
 .navbar.bg-primary {
   background-color: var(--color-primary) !important;
 }
@@ -57,7 +50,6 @@ body {
   color: var(--color-secondary);
 }
 
-/* BOTÕES PRINCIPAIS */
 .btn-primary {
   background-color: var(--color-primary);
   border-color: var(--color-primary);
@@ -77,7 +69,6 @@ body {
   box-shadow: 0 6px 16px rgba(25, 29, 130, 0.4);
 }
 
-/* BOTÕES SECUNDÁRIOS */
 .btn-outline-primary {
   border-color: var(--color-primary);
   color: var(--color-primary);
@@ -88,7 +79,6 @@ body {
   border-color: var(--color-primary);
 }
 
-/* CARDS MELHORADOS */
 .card {
   border-radius: var(--border-radius);
   border: 1px solid var(--color-border);
@@ -112,7 +102,6 @@ body {
   margin-bottom: 1rem;
 }
 
-/* FOOTER */
 footer.bg-dark {
   background-color: #222 !important;
   color: var(--color-white);
@@ -128,9 +117,6 @@ footer .btn-outline-light:hover {
   color: #222;
 }
 
-/* ===== COMPONENTES ESPECIAIS DO ADMIN ===== */
-
-/* SIDEBAR ADMIN */
 .sidebar {
   background-color: var(--color-primary) !important;
 }
@@ -152,7 +138,6 @@ footer .btn-outline-light:hover {
   border-left-color: var(--color-secondary);
 }
 
-/* BADGES */
 .badge.bg-primary {
   background-color: var(--color-primary) !important;
 }
@@ -165,26 +150,16 @@ footer .btn-outline-light:hover {
   background-color: var(--color-warning) !important;
 }
 
-/* ALERTS */
 .alert-info {
   background-color: rgba(23, 162, 184, 0.1);
   border-color: var(--color-info);
   color: var(--color-info);
 }
 
-/* ===== UTILITÁRIOS ADICIONAIS ===== */
-.lead-lg {
-  font-size: 1.125rem;
-  color: var(--color-text-secondary);
-}
-
 .text-muted {
   color: var(--color-text-secondary) !important;
 }
 
-/* ===== LOGOS E IMAGENS ===== */
-
-/* Navbar Logo */
 .navbar-brand img {
   height: 40px;
   transition: opacity 0.3s ease;
@@ -194,7 +169,6 @@ footer .btn-outline-light:hover {
   opacity: 0.9;
 }
 
-/* Hero Section com Logo */
 .hero-with-logo {
   text-align: center;
   padding: 3rem 0;
@@ -205,22 +179,17 @@ footer .btn-outline-light:hover {
   margin-bottom: 2rem;
 }
 
-/* Footer Logo */
 .footer-logo {
   height: 30px;
   opacity: 0.8;
   margin-bottom: 1rem;
 }
 
-/* Admin Logo */
 .admin-sidebar-logo {
   height: 35px;
   margin-bottom: 1rem;
 }
 
-/* ===== AJUSTES FINAIS ===== */
-
-/* Melhorar cards da homepage */
 .card-custom {
   border: none;
   border-radius: 12px;
@@ -234,12 +203,10 @@ footer .btn-outline-light:hover {
   box-shadow: 0 8px 30px rgba(31, 36, 163, 0.15);
 }
 
-/* Botões com sombra mais suave */
 .btn {
   box-shadow: 0 2px 4px rgba(31, 36, 163, 0.15);
 }
 
-/* Links com cor primária */
 a {
   color: var(--color-primary);
   text-decoration: none;
@@ -249,25 +216,21 @@ a:hover {
   color: var(--color-primary-hover);
 }
 
-/* Melhorar espaçamento geral */
 .container {
   padding-top: 1rem;
   padding-bottom: 2rem;
 }
 
-/* Ajustes para admin */
 .admin-container {
   background-color: var(--color-bg);
   min-height: 100vh;
 }
 
-/* Loading states */
 .loading {
   opacity: 0.7;
   pointer-events: none;
 }
 
-/* Hero Section Adaptada */
 .hero-section {
   background: linear-gradient(135deg, var(--color-primary) 0%, #2c3e50 100%);
   color: white;
@@ -277,7 +240,64 @@ a:hover {
   text-align: center;
 }
 
-/* ===== RESPONSIVIDADE ===== */
+.stat-card {
+    transition: transform 0.2s;
+    border-left: 4px solid;
+}
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+.stat-card.users { border-left-color: #007bff; }
+.stat-card.resources { border-left-color: #28a745; }
+.stat-card.pending { border-left-color: #ffc107; }
+.stat-card.news { border-left-color: #17a2b8; }
+
+.stat-card {
+    transition: transform 0.2s;
+    border-left: 4px solid #007bff;
+}
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+.print-only {
+    display: none;
+}
+
+.stat-card.users { border-left-color: #007bff; }
+.stat-card.resources { border-left-color: #28a745; }
+.stat-card.pending { border-left-color: #ffc107; }
+.stat-card.news { border-left-color: #17a2b8; }
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    .print-only {
+        display: block;
+    }
+    .card {
+        border: 1px solid #000 !important;
+        break-inside: avoid;
+    }
+    .stat-card {
+        border-left: 4px solid #000 !important;
+    }
+}
+
+.permission-badge {
+    font-size: 0.8rem;
+    padding: 0.4em 0.6em;
+}
+
+.admin-permissions .form-select-sm {
+    width: 140px;
+}
+
 @media (max-width: 768px) {
   .container {
     padding-left: 1rem;
@@ -285,7 +305,7 @@ a:hover {
   }
   
   .hero-with-logo {
-    padding: 2rem 0 !important;
+    padding: 2rem 0;
   }
 
   .hero-logo {

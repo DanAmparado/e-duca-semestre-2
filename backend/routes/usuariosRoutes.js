@@ -7,6 +7,7 @@ const auth = require('../middleware/auth');
 router.use(auth);
 
 router.get('/perfil', usuariosController.perfil);
+router.get('/perfil/editar', usuariosController.formularioEditarPerfil); // 🆕 NOVA ROTA
 router.post('/perfil', usuariosController.atualizarPerfil);
 router.get('/recomendacoes', usuariosController.recomendacoes);
 

@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <%- include('../partials/head') %>
-    <title>Meu Perfil - E-DUCA</title>
+    <%- include('../partials/head', { title: 'Meu Perfil - E-DUCA' }) %>
 </head>
 <body>
-    <%- include('../partials/navbar') %>
+    <%- include('../partials/navbar', { user: user }) %>
     
     <div class="container mt-5 pt-5">
         <div class="row justify-content-center">
@@ -14,22 +13,46 @@
                     <div class="card-body p-5">
                         <h2 class="text-center mb-4">Meu Perfil</h2>
                         
+                        <!-- 🎯 ADICIONAR: Mensagens de sucesso/erro -->
+                        <% if (typeof sucesso !== 'undefined' && sucesso) { %>
+                            <div class="alert alert-success" role="alert">
+                                <%= sucesso %>
+                            </div>
+                        <% } %>
+                        
                         <div class="mb-4">
                             <h5>Informações da Conta</h5>
                             <p><strong>Email:</strong> <%= user.email %></p>
                             <% if (user.cidade) { %>
                                 <p><strong>Cidade:</strong> <%= user.cidade %></p>
+                            <% } else { %>
+                                <p><strong>Cidade:</strong> <span class="text-muted">Não informada</span></p>
                             <% } %>
                             <% if (user.estado) { %>
                                 <p><strong>Estado:</strong> <%= user.estado %></p>
+                            <% } else { %>
+                                <p><strong>Estado:</strong> <span class="text-muted">Não informado</span></p>
                             <% } %>
                             <% if (user.etapa_preferida) { %>
-                                <p><strong>Etapa de Interesse:</strong> <%= user.etapa_preferida %></p>
+                                <p><strong>Etapa de Interesse:</strong> 
+                                    <%= user.etapa_preferida === 'Basico' ? 'Ensino Básico' : 
+                                       user.etapa_preferida === 'Fundamental' ? 'Ensino Fundamental' :
+                                       user.etapa_preferida === 'Medio' ? 'Ensino Médio' :
+                                       user.etapa_preferida === 'Tecnico' ? 'Ensino Técnico' :
+                                       user.etapa_preferida === 'Superior' ? 'Ensino Superior' : 
+                                       user.etapa_preferida %>
+                                </p>
+                            <% } else { %>
+                                <p><strong>Etapa de Interesse:</strong> <span class="text-muted">Não informada</span></p>
                             <% } %>
                         </div>
 
+                        <!-- 🎯 ADICIONAR: Botão para editar perfil -->
                         <div class="d-grid gap-2">
-                            <a href="/" class="btn btn-primary">Voltar para Home</a>
+                            <a href="/perfil/editar" class="btn btn-primary">
+                                <i class="bi bi-pencil-square me-1"></i>Editar Perfil
+                            </a>
+                            <a href="/" class="btn btn-outline-secondary">Voltar para Home</a>
                             <a href="/auth/logout" class="btn btn-outline-danger">Sair</a>
                         </div>
                     </div>

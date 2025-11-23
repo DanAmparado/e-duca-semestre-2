@@ -1,9 +1,10 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
-    <%- include('../partials/head') %>
-    <title>Cadastro - Educação Acessível</title>
+    <%- include('../partials/head', { title: 'Cadastro - E-DUCA' }) %>
 </head>
 <body>
-    <%- include('../partials/navbar') %>
+    <%- include('../partials/navbar', { user: user }) %>
     
     <main class="container mt-5 pt-5">
         <div class="row justify-content-center">
@@ -21,38 +22,90 @@
                         <% } %>
                         
                         <form action="/auth/cadastro" method="POST">
+                            <!-- Email -->
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>
                                 <input type="email" class="form-control" id="email" name="email" required>
                             </div>
-                            <div class="mb-3">
-                                <label for="senha" class="form-label">Senha</label>
-                                <input type="password" class="form-control" id="senha" name="senha" required>
+
+                            <!-- Senhas -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="senha" class="form-label">Senha</label>
+                                        <input type="password" class="form-control" id="senha" name="senha" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="confirmar_senha" class="form-label">Confirmar Senha</label>
+                                        <input type="password" class="form-control" id="confirmar_senha" name="confirmar_senha" required>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="mb-3">
-                                <label for="confirmar_senha" class="form-label">Confirmar Senha</label>
-                                <input type="password" class="form-control" id="confirmar_senha" name="confirmar_senha" required>
+
+                            <!-- Cidade e Estado -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="cidade" class="form-label">Cidade (opcional)</label>
+                                        <input type="text" class="form-control" id="cidade" name="cidade" placeholder="Sua cidade">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="estado" class="form-label">Estado (opcional)</label>
+                                        <select class="form-select" id="estado" name="estado">
+                                            <option value="">Selecione seu estado</option>
+                                            <option value="AC">Acre</option>
+                                            <option value="AL">Alagoas</option>
+                                            <option value="AP">Amapá</option>
+                                            <option value="AM">Amazonas</option>
+                                            <option value="BA">Bahia</option>
+                                            <option value="CE">Ceará</option>
+                                            <option value="DF">Distrito Federal</option>
+                                            <option value="ES">Espírito Santo</option>
+                                            <option value="GO">Goiás</option>
+                                            <option value="MA">Maranhão</option>
+                                            <option value="MT">Mato Grosso</option>
+                                            <option value="MS">Mato Grosso do Sul</option>
+                                            <option value="MG">Minas Gerais</option>
+                                            <option value="PA">Pará</option>
+                                            <option value="PB">Paraíba</option>
+                                            <option value="PR">Paraná</option>
+                                            <option value="PE">Pernambuco</option>
+                                            <option value="PI">Piauí</option>
+                                            <option value="RJ">Rio de Janeiro</option>
+                                            <option value="RN">Rio Grande do Norte</option>
+                                            <option value="RS">Rio Grande do Sul</option>
+                                            <option value="RO">Rondônia</option>
+                                            <option value="RR">Roraima</option>
+                                            <option value="SC">Santa Catarina</option>
+                                            <option value="SP">São Paulo</option>
+                                            <option value="SE">Sergipe</option>
+                                            <option value="TO">Tocantins</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="mb-3">
-                                <label for="cidade" class="form-label">Cidade (opcional)</label>
-                                <input type="text" class="form-control" id="cidade" name="cidade">
-                            </div>
-                            <div class="mb-3">
-                                <label for="estado" class="form-label">Estado (opcional)</label>
-                                <input type="text" class="form-control" id="estado" name="estado">
-                            </div>
+
+                            <!-- Etapa de Interesse -->
                             <div class="mb-3">
                                 <label for="etapa_preferida" class="form-label">Etapa de Interesse (opcional)</label>
-                                <select class="form-control" id="etapa_preferida" name="etapa_preferida">
-                                    <option value="">Selecione...</option>
-                                    <option value="Basico">Básico</option>
-                                    <option value="Fundamental">Fundamental</option>
-                                    <option value="Medio">Médio</option>
-                                    <option value="Tecnico">Técnico</option>
-                                    <option value="Superior">Superior</option>
+                                <select class="form-select" id="etapa_preferida" name="etapa_preferida">
+                                    <option value="">Selecione sua etapa de interesse</option>
+                                    <option value="Basico">Ensino Básico</option>
+                                    <option value="Fundamental">Ensino Fundamental</option>
+                                    <option value="Medio">Ensino Médio</option>
+                                    <option value="Tecnico">Ensino Técnico</option>
+                                    <option value="Superior">Ensino Superior</option>
                                 </select>
+                                <div class="form-text">Esta informação é usada para recomendações personalizadas.</div>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100">Criar Conta</button>
+
+                            <button type="submit" class="btn btn-primary w-100 py-2">
+                                <i class="bi bi-person-plus me-1"></i>Criar Conta
+                            </button>
                         </form>
                         
                         <div class="text-center mt-3">
@@ -66,3 +119,4 @@
 
     <%- include('../partials/footer') %>
 </body>
+</html>

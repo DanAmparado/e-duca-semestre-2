@@ -8,7 +8,7 @@ const usuariosController = {
         });
     },
 
-    // 🆕 ADICIONAR: Formulário de edição
+    //Formulário de edição
     formularioEditarPerfil: (req, res) => {
         res.render('pages/perfil/editar', {
             user: req.session.user,
@@ -25,7 +25,7 @@ const usuariosController = {
         db.query(sql, [cidade, estado, etapa_preferida, userId], (err, result) => {
             if (err) {
                 console.error('Erro ao atualizar perfil:', err);
-                // 🎯 CORREÇÃO: Redirecionar para o formulário com erro
+                //Redirecionar para o formulário com erro
                 return res.redirect('/perfil/editar?erro=Erro ao atualizar perfil');
             }
 
@@ -34,7 +34,7 @@ const usuariosController = {
             req.session.user.estado = estado;
             req.session.user.etapa_preferida = etapa_preferida;
 
-            // 🎯 CORREÇÃO: Redirecionar para o perfil com sucesso
+            //Redirecionar para o perfil com sucesso
             res.redirect('/perfil?sucesso=Perfil atualizado com sucesso!');
         });
     },

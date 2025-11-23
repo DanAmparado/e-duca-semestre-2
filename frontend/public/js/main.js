@@ -12,7 +12,7 @@ function inicializarComponentesBootstrap() {
         return new bootstrap.Popover(popoverTriggerEl);
     });
 
-    // Inicializar modais (se necessário)
+    // Inicializar modais
     const modals = document.querySelectorAll('.modal');
     modals.forEach(modal => {
         new bootstrap.Modal(modal);
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
         inicializarComponentesBootstrap();
     } else {
         console.warn('Bootstrap não carregado');
-        // Tentar carregar Bootstrap dinamicamente se necessário
+        // Tentar carregar Bootstrap dinamicamente
         setTimeout(() => {
             if (typeof bootstrap !== 'undefined') {
                 inicializarComponentesBootstrap();

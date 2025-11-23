@@ -15,7 +15,7 @@ const recomendacoesController = {
         let parametros = [];
 
         if (user.etapa_preferida) {
-            // 🎯 BUSCA OTIMIZADA: Encontrar recursos que contenham a etapa do usuário
+            //Encontrar recursos que contenham a etapa do usuário
             sql = `
                 SELECT * FROM recursos 
                 WHERE ativo = 1 
@@ -29,29 +29,24 @@ const recomendacoesController = {
                 LIMIT 20
             `;
             parametros = [
-                user.etapa_preferida,                    // Etapa exata: "Superior"
-                `${user.etapa_preferida},%`,             // Começa com: "Superior,%"
-                `%,${user.etapa_preferida},%`,           // Está no meio: "%,Superior,%"
-                `%,${user.etapa_preferida}`              // Termina com: "%,Superior"
+                user.etapa_preferida,
+                `${user.etapa_preferida},%`,
+                `%,${user.etapa_preferida},%`,
+                `%,${user.etapa_preferida}`
             ];
         } else {
             // Usuário sem preferência
             sql = 'SELECT * FROM recursos WHERE ativo = 1 ORDER BY data_criacao DESC LIMIT 15';
         }
 
-        console.log('🔍 DEBUG - Executando query:', sql);
-        console.log('🔍 DEBUG - Parâmetros:', parametros);
-
         db.query(sql, parametros, (err, results) => {
             if (err) {
-                console.error('❌ Erro ao buscar recomendações:', err);
+                console.error('Erro ao buscar recomendações:', err);
                 return res.status(500).render('pages/erro', {
                     erro: 'Erro interno do servidor',
                     user: req.session.user
                 });
             }
-
-            console.log('✅ DEBUG - Recursos encontrados:', results.length);
             
             res.render('pages/recomendacoes/para-voce', {
                 user: req.session.user,

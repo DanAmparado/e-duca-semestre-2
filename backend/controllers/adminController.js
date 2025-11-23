@@ -1,10 +1,10 @@
 const db = require('../config/database');
 
 const adminController = {
-    // 📊 DASHBOARD ADMIN
+    //DASHBOARD ADMIN
     dashboard: async (req, res) => {
         try {
-            // 🆕 SOLUÇÃO 2: Stats com fallbacks robustos
+            //SOLUÇÃO 2: Stats com fallbacks robustos
             const statsQuery = `
                 SELECT 
                     (SELECT COUNT(*) FROM usuarios) as total_usuarios,
@@ -62,7 +62,7 @@ const adminController = {
         }
     },
 
-    // 👥 GERENCIAMENTO DE USUÁRIOS
+    //GERENCIAMENTO DE USUÁRIOS
     listarUsuarios: (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = 10;
@@ -148,7 +148,7 @@ const adminController = {
 
             db.query(logSql, [
                 req.session.user.id,
-                descricaoLog, // ✅ Agora a variável está definida
+                descricaoLog,
                 req.ip
             ]);
 
@@ -161,7 +161,7 @@ const adminController = {
         });
     },
 
-    // 📚 GERENCIAMENTO DE RECURSOS
+    //GERENCIAMENTO DE RECURSOS
     listarRecursos: (req, res) => {
         const { status, etapa, page } = req.query;
         const currentPage = parseInt(page) || 1;
@@ -228,7 +228,7 @@ const adminController = {
         });
     },
 
-    // ➕ FORMULÁRIO CRIAR RECURSO
+    //FORMULÁRIO CRIAR RECURSO
     formularioCriarRecurso: (req, res) => {
         res.render('admin/recursos/criar', {
             user: req.session.user,
@@ -236,7 +236,7 @@ const adminController = {
         });
     },
 
-    // 💾 CRIAR RECURSO
+    //CRIAR RECURSO
     criarRecurso: (req, res) => {
         const { titulo, descricao, link_externo, etapa } = req.body;
 
@@ -279,7 +279,7 @@ const adminController = {
         });
     },
 
-    // ✏️ FORMULÁRIO EDITAR RECURSO
+    //FORMULÁRIO EDITAR RECURSO
     formularioEditarRecurso: (req, res) => {
         const { id } = req.params;
 
@@ -308,7 +308,7 @@ const adminController = {
         });
     },
 
-    // 💾 ATUALIZAR RECURSO
+    //ATUALIZAR RECURSO
     atualizarRecurso: (req, res) => {
         const { id } = req.params;
         const { titulo, descricao, link_externo, etapa, ativo } = req.body;
@@ -367,7 +367,7 @@ const adminController = {
         });
     },
 
-    // 🗑️ EXCLUIR RECURSO (SOFT DELETE)
+    //EXCLUIR RECURSO (SOFT DELETE)
     excluirRecurso: (req, res) => {
         const { id } = req.params;
 
@@ -423,7 +423,7 @@ const adminController = {
         });
     },
 
-    // 🔄 RESTAURAR RECURSO
+    //RESTAURAR RECURSO
     restaurarRecurso: (req, res) => {
         const { id } = req.params;
 
@@ -456,12 +456,12 @@ const adminController = {
         });
     },
 
-    // 📊 RELATÓRIOS E ESTATÍSTICAS - VERSÃO FINAL COM SCHEMA REAL
+    //RELATÓRIOS E ESTATÍSTICAS - VERSÃO FINAL COM SCHEMA REAL
     relatorios: async (req, res) => {
         try {
             const { periodo = '30', tipo = 'geral' } = req.query;
 
-            // 📈 ESTATÍSTICAS DETALHADAS - AJUSTADO PARA SCHEMA REAL
+            //ESTATÍSTICAS DETALHADAS - AJUSTADO PARA SCHEMA REAL
             const statsQuery = `
                 SELECT 
                     -- Usuários
@@ -486,7 +486,7 @@ const adminController = {
                     (SELECT COALESCE(COUNT(*), 0) FROM noticias WHERE status = 'agendado') as noticias_agendadas
             `;
 
-            // 👥 USUÁRIOS POR ETAPA PREFERIDA
+            //USUÁRIOS POR ETAPA PREFERIDA
             const usuariosEtapaQuery = `
                 SELECT 
                     CASE 
@@ -499,7 +499,7 @@ const adminController = {
                 ORDER BY total DESC
             `;
 
-            // 📚 RECURSOS POR TIPO (AGRUPADOS)
+            //RECURSOS POR TIPO (AGRUPADOS)
             const recursosTipoQuery = `
                 SELECT 
                     CASE 
@@ -515,7 +515,7 @@ const adminController = {
                 ORDER BY total DESC
             `;
 
-            // 🗺️ USUÁRIOS POR ESTADO
+            //USUÁRIOS POR ESTADO
             const usuariosEstadoQuery = `
                 SELECT 
                     CASE 
@@ -529,7 +529,7 @@ const adminController = {
                 LIMIT 10
             `;
 
-            // 🏆 TOP RECURSOS (MAIS RECENTES)
+            //TOP RECURSOS (MAIS RECENTES)
             const topRecursosQuery = `
                 SELECT id, titulo, etapa, data_criacao
                 FROM recursos 
@@ -538,7 +538,7 @@ const adminController = {
                 LIMIT 10
             `;
 
-            // 📊 DADOS TEMPORAIS (CRESCIMENTO DE USUÁRIOS)
+            //DADOS TEMPORAIS (CRESCIMENTO DE USUÁRIOS)
             const crescimentoQuery = `
                 SELECT 
                     DATE_FORMAT(data_cadastro, '%Y-%m-%d') as data,
@@ -549,7 +549,7 @@ const adminController = {
                 ORDER BY data
             `;
 
-            // 📈 LOGS DO SISTEMA (ATIVIDADE RECENTE)
+            //LOGS DO SISTEMA (ATIVIDADE RECENTE)
             const logsRecentesQuery = `
                 SELECT tipo_log, acao, data_log, usuario_id
                 FROM sistema_logs 
@@ -604,12 +604,12 @@ const adminController = {
                 })
             ]);
 
-            // 🎯 CALCULAR TAXA DE CRESCIMENTO
+            //CALCULAR TAXA DE CRESCIMENTO
             const crescimentoUsuarios = crescimentoData.reduce((total, dia) => total + dia.novos_usuarios, 0);
             const taxaCrescimento = statsResult.total_usuarios > 0 ? 
                 ((crescimentoUsuarios / statsResult.total_usuarios) * 100).toFixed(1) : 0;
 
-            // 📊 PREPARAR DADOS PARA GRÁFICOS
+            //PREPARAR DADOS PARA GRÁFICOS
             const dadosGraficos = {
                 usuariosPorEtapa: {
                     labels: usuariosEtapa.map(row => row.etapa),
@@ -663,7 +663,7 @@ const adminController = {
         }
     },
 
-    // 🆕 ENDPOINTS API PARA RELATÓRIOS (AJAX)
+    //ENDPOINTS API PARA RELATÓRIOS (AJAX)
     apiRelatorios: async (req, res) => {
         try {
             const { tipo, periodo = '30' } = req.query;
@@ -732,7 +732,7 @@ const adminController = {
         }
     },
 
-    // 👥 GERENCIAMENTO DE PERMISSÕES - APENAS SUPERADMIN
+    //GERENCIAMENTO DE PERMISSÕES - APENAS SUPERADMIN
     listarPermissoes: (req, res) => {
         try {
             const sql = `
@@ -866,7 +866,6 @@ const adminController = {
                             return res.redirect('/admin/permissoes');
                         }
 
-                        // ✅ CORREÇÃO: Definir descricaoLog antes de usar
                         const descricaoLog = `Alterou permissões de ${usuario.email}: ${nivelAnterior} → ${nivel_acesso} (is_admin: ${isAdmin})`;
 
                         // Registrar no log do sistema
@@ -880,7 +879,7 @@ const adminController = {
                             'permissao',
                             req.session.user.id,
                             'Atualização de Permissões',
-                            descricaoLog, // ✅ Agora a variável está definida
+                            descricaoLog,
                             req.ip
                         ], (logErr) => {
                             connection.release();

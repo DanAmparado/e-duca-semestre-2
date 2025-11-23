@@ -4,10 +4,9 @@ const bcrypt = require('bcrypt');
 
 async function seedTestUsers() {
     try {
-        console.log('🧹 Limpando usuários de teste existentes...');
+        console.log('Limpando usuários de teste existentes...');
         
-        // 🎯 CORREÇÃO: Primeiro limpar as referências nas tabelas relacionadas
-        console.log('🔧 Limpando registros relacionados...');
+        console.log('Limpando registros relacionados...');
         
         // 1. Limpar registros em recursos_backup que referenciam os usuários
         const deleteBackupQuery = `
@@ -31,10 +30,10 @@ async function seedTestUsers() {
         await new Promise((resolve, reject) => {
             db.query(deleteBackupQuery, (err, result) => {
                 if (err) {
-                    console.log('⚠️  Nenhum registro em recursos_backup para limpar');
+                    console.log('Nenhum registro em recursos_backup para limpar');
                     resolve();
                 } else {
-                    console.log(`✅ ${result.affectedRows} registros em recursos_backup removidos`);
+                    console.log(`${result.affectedRows} registros em recursos_backup removidos`);
                     resolve();
                 }
             });
@@ -43,10 +42,10 @@ async function seedTestUsers() {
         await new Promise((resolve, reject) => {
             db.query(deleteLogsQuery, (err, result) => {
                 if (err) {
-                    console.log('⚠️  Nenhum registro em sistema_logs para limpar');
+                    console.log('Nenhum registro em sistema_logs para limpar');
                     resolve();
                 } else {
-                    console.log(`✅ ${result.affectedRows} registros em sistema_logs removidos`);
+                    console.log(`${result.affectedRows} registros em sistema_logs removidos`);
                     resolve();
                 }
             });
@@ -55,22 +54,21 @@ async function seedTestUsers() {
         await new Promise((resolve, reject) => {
             db.query(deleteNoticiasQuery, (err, result) => {
                 if (err) {
-                    console.log('⚠️  Nenhum registro em noticias para limpar');
+                    console.log('Nenhum registro em noticias para limpar');
                     resolve();
                 } else {
-                    console.log(`✅ ${result.affectedRows} registros em noticias removidos`);
+                    console.log(`${result.affectedRows} registros em noticias removidos`);
                     resolve();
                 }
             });
         });
 
-        // Agora sim, podemos excluir os usuários
         const deleteQuery = "DELETE FROM usuarios WHERE email LIKE '%@educa.com%'";
         await new Promise((resolve, reject) => {
             db.query(deleteQuery, (err, result) => {
                 if (err) reject(err);
                 else {
-                    console.log(`✅ ${result.affectedRows} usuários de teste removidos`);
+                    console.log(`${result.affectedRows} usuários de teste removidos`);
                     resolve();
                 }
             });
@@ -81,14 +79,13 @@ async function seedTestUsers() {
         // Hash da senha comum (senha123)
         const hashedPassword = await bcrypt.hash('senha123', 10);
 
-        // 🎯 CORREÇÃO: Usar o MESMO formato do sistema real de cadastro
         const testUsers = [
             {
                 email: 'super@educa.com',
                 senha: hashedPassword,
                 cidade: 'São Paulo',
                 estado: 'SP',
-                etapa_preferida: 'Superior', // ✅ FORMATO CORRETO
+                etapa_preferida: 'Superior',
                 is_admin: 1,
                 nivel_acesso: 'superadmin'
             },
@@ -97,7 +94,7 @@ async function seedTestUsers() {
                 senha: hashedPassword,
                 cidade: 'Rio de Janeiro',
                 estado: 'RJ', 
-                etapa_preferida: 'Medio', // ✅ FORMATO CORRETO
+                etapa_preferida: 'Medio',
                 is_admin: 1,
                 nivel_acesso: 'moderador'
             },
@@ -106,7 +103,7 @@ async function seedTestUsers() {
                 senha: hashedPassword,
                 cidade: 'Belo Horizonte',
                 estado: 'MG',
-                etapa_preferida: 'Fundamental', // ✅ FORMATO CORRETO
+                etapa_preferida: 'Fundamental',
                 is_admin: 1,
                 nivel_acesso: 'editor'
             },
@@ -115,7 +112,7 @@ async function seedTestUsers() {
                 senha: hashedPassword,
                 cidade: 'Curitiba',
                 estado: 'PR',
-                etapa_preferida: 'Basico', // ✅ FORMATO CORRETO
+                etapa_preferida: 'Basico',
                 is_admin: 0,
                 nivel_acesso: 'usuario'
             }
@@ -136,20 +133,20 @@ async function seedTestUsers() {
                 ], (err, result) => {
                     if (err) reject(err);
                     else {
-                        console.log(`✅ ${user.email} criado como ${user.nivel_acesso} (etapa: ${user.etapa_preferida})`);
+                        console.log(`${user.email} criado como ${user.nivel_acesso} (etapa: ${user.etapa_preferida})`);
                         resolve();
                     }
                 });
             });
         }
 
-        console.log('\n🎉 POPULAÇÃO CONCLUÍDA!');
-        console.log('📋 USUÁRIOS CRIADOS:');
-        console.log('   👑 super@educa.com (superadmin) - etapa: Superior');
-        console.log('   ⚡ moderador@educa.com (moderador) - etapa: Medio');
-        console.log('   ✏️ editor@educa.com (editor) - etapa: Fundamental');
-        console.log('   👤 usuario@educa.com (usuario) - etapa: Basico');
-        console.log('   🔑 Senha para todos: senha123');
+        console.log('\nPOPULAÇÃO CONCLUÍDA!');
+        console.log('USUÁRIOS CRIADOS:');
+        console.log('   super@educa.com (superadmin) - etapa: Superior');
+        console.log('   moderador@educa.com (moderador) - etapa: Medio');
+        console.log('   editor@educa.com (editor) - etapa: Fundamental');
+        console.log('   usuario@educa.com (usuario) - etapa: Basico');
+        console.log('   Senha para todos: senha123');
 
         // Verificação final
         const verifyQuery = `
@@ -161,9 +158,9 @@ async function seedTestUsers() {
         
         db.query(verifyQuery, (err, results) => {
             if (err) {
-                console.error('❌ Erro ao verificar inserção:', err);
+                console.error('Erro ao verificar inserção:', err);
             } else {
-                console.log('\n🔍 VERIFICAÇÃO DO BANCO:');
+                console.log('\nVERIFICAÇÃO DO BANCO:');
                 console.table(results);
             }
             
@@ -171,10 +168,9 @@ async function seedTestUsers() {
         });
 
     } catch (error) {
-        console.error('❌ Erro durante a população:', error);
+        console.error('Erro durante a população:', error);
         process.exit(1);
     }
 }
 
-// Executar o script
 seedTestUsers();

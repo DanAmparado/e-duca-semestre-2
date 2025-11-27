@@ -1,4 +1,3 @@
-// seed-test-users.js
 const db = require('./backend/config/database');
 const bcrypt = require('bcrypt');
 
@@ -74,7 +73,7 @@ async function seedTestUsers() {
             });
         });
 
-        console.log('🎯 Criando usuários de teste...');
+        console.log('Criando usuários de teste...');
 
         // Hash da senha comum (senha123)
         const hashedPassword = await bcrypt.hash('senha123', 10);

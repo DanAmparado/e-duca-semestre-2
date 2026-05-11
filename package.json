@@ -26,6 +26,6 @@
     "@types/jsonwebtoken": "^9.0.10"
   },
   "prisma": {
-  "seed": "node prisma/seed.js"
-}
+    "seed": "node prisma/seed.js"
+  }
 }
